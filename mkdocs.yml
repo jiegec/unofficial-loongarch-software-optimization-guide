@@ -16,7 +16,24 @@ theme:
     - content.code.copy
 
 nav:
+  - Home: index.md
   - Introduction: intro.md
+  - Microarchitecture:
+      - Microarchitecture overview: microarchitecture/index.md
+      - Processor block diagram: microarchitecture/block-diagram.md
+      - Processor cache operation: microarchitecture/caches.md
+      - Memory address translation: microarchitecture/address-translation.md
+      - Optimizing branching: microarchitecture/branching.md
+      - Instruction fetch and decode: microarchitecture/front-end.md
+      - Integer execution: microarchitecture/integer.md
+      - Floating-point execution: microarchitecture/fp.md
+      - Vector execution (LSX and LASX): microarchitecture/vector.md
+      - Load-store unit: microarchitecture/load-store.md
+      - Data prefetching: microarchitecture/prefetch.md
+      - Simultaneous multithreading: microarchitecture/smt.md
+      - Atomics and memory ordering: microarchitecture/atomics.md
+  - Instruction latency and throughput: latency-throughput.md
+  - Compiler and toolchain notes: toolchain.md
 
 plugins:
   - search
