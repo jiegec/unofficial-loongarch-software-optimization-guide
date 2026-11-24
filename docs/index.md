@@ -24,6 +24,10 @@ Where the two cores behave the same, the sections say so explicitly instead of
 repeating the text. Sections that only apply to one core (for example
 simultaneous multithreading) are marked as such.
 
+## Acknowledgements
+
+This guide is inspired by AMD's *Software Optimization Guide* series. Thanks to AMD for setting such a good example.
+
 ## Disclaimer
 
 This is an unofficial document. It is not affiliated with or endorsed by Loongson
