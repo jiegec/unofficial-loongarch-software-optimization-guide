@@ -1,0 +1,34 @@
+site_name: Unofficial LoongArch Software Optimization Guide
+site_description: Unofficial LoongArch software optimization guide for LA464/LA664
+site_url: https://jia.je/unofficial-loongarch-software-optimization-guide
+repo_url: https://github.com/jiegec/unofficial-loongarch-software-optimization-guide
+repo_name: jiegec/unofficial-loongarch-software-optimization-guide
+copyright: Copyright &copy; 2026 Jiajie Chen
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - content.code.copy
+
+nav:
+  - Introduction: intro.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.details
+
