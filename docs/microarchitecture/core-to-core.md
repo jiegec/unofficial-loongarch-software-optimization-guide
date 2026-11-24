@@ -7,7 +7,7 @@ plot measurements from
 on a 3C5000 and a 3C6000/S.
 
 The tool reports one-way latency as half the round-trip time, in nanoseconds.
-Each cell is the median for one ordered pair and is printed in the heatmap; the
+Each cell is the mean for one ordered pair and is printed in the heatmap; the
 diagonal is omitted. The raw matrices are in
 [core-to-core-3C5000.csv](core-to-core-3C5000.csv) and
 [core-to-core-3C6000S.csv](core-to-core-3C6000S.csv).
@@ -15,10 +15,10 @@ diagonal is omitted. The raw matrices are in
 | Part | Logical CPUs | Min | Median | Max |
 | --- | --- | --- | --- | --- |
 | 3C5000 | 16 | 29.2 | 43.8 | 55.5 |
-| 3C6000/S | 32 | 7.4 | 32.0 | 57.0 |
+| 3C6000/S | 32 | 7.3 | 26.9 | 34.4 |
 
 All values are nanoseconds. The 3C6000/S table includes SMT sibling pairs;
-excluding the 16 sibling pairs gives a cross-core median of 32.2 ns.
+excluding the 16 sibling pairs gives a cross-core median of 26.9 ns.
 
 ## 3C5000
 
@@ -38,11 +38,11 @@ can cost twice as much depending on which core pair is involved.
 
 [![Core-to-core latency matrix for the 3C6000/S](../assets/images/core-to-core-3c6000s.png)](../assets/images/core-to-core-3c6000s.png)
 
-The physical machine exposes 32 logical CPUs and spans 7 to 57 ns, with a
-median of 32 ns. The low end, around 7.4 ns, is SMT sibling traffic, not
-core-to-core communication. The rest of the matrix runs from about 20 to 57 ns.
-This 5000-iteration run is much tighter than the previous physical run, which
-spanned 7 to 112 ns with a median of 42 ns.
+The physical machine exposes 32 logical CPUs and spans 7 to 34 ns, with a
+median of 27 ns. The low end, 7.3 ns, is SMT sibling traffic, not core-to-core
+communication. The rest of the matrix runs from about 20 to 34 ns. This run used
+the performance governor; earlier runs on the same machine spanned 7 to 61 ns
+and 7 to 112 ns, with several sibling outliers.
 
 The matrix is not uniform, and the 32 by 32 grid is dense, so open the image at
 full size to read the values cell by cell. The CSV is a core-by-core matrix, but
@@ -50,10 +50,10 @@ it does not say which cores share a cluster or a NUMA node, so the page does not
 assign the high-latency pairs to a particular hardware boundary.
 
 The 3C6000/S has SMT: 0 and 1 are siblings, 2 and 3 are siblings, and so on.
-Most of the 16 sibling pairs measure 7.4 to 7.6 ns, but 0-1, 4-5, and 6-7
-measure 20 to 39 ns. Those three look like measurement outliers rather than a
-different sibling mapping. Excluding all sibling pairs, the cross-core median
-is 32.2 ns.
+All 16 sibling pairs measure 7.3 ns in this run. Earlier runs with the default
+governor put some of them at 20 to 39 ns; those were frequency or scheduling
+artifacts rather than a property of the cores. Excluding all sibling pairs, the
+cross-core median is 26.9 ns.
 
 ## What this means for software
 
