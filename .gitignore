@@ -5,4 +5,5 @@ __pycache__/
 *.pdf
 .uvcache/
 .extract/
+.ff/
 .DS_Store
