@@ -15,18 +15,49 @@ writing performance-sensitive C, C++, or assembly for LoongArch.
 
 ## How the guide is organized
 
-Each section has the same three parts:
+Most sections follow the same pattern. They start with the mechanism and what
+software can do about it, then look at how LA664 and LA464 implement it. Where the
+two cores behave the same, the section says so rather than repeating the text, and
+sections that apply to only one core, such as simultaneous multithreading, are
+marked as such.
 
-1. **Principles**: the mechanism, why it matters, and what software can do about
-   it. This part is architecture-level and applies to any LoongArch core unless
-   stated otherwise.
-2. **LA664**: what is documented or measured for LA664, and the resulting
-   recommendations.
-3. **LA464**: the same for LA464.
+A few sections are organized differently. The cache hierarchy has a subsection
+per level, the branch section separates prediction from layout, and the ISA
+section ends with a direct comparison of the two cores. The pattern is a default,
+not a straitjacket.
 
-Where the two cores behave the same, the sections say so explicitly rather than
-repeating the text. Sections that only apply to one core (for example
-simultaneous multithreading) are marked as such.
+## Sources
+
+The guide draws on four sets of material.
+
+**Chips and Cheese** publishes the microbenchmark articles behind most of the
+core-level numbers:
+
+- [Loongson 3A6000: A Star among Chinese CPUs](https://chipsandcheese.com/p/loongson-3a6000-a-star-among-chinese-cpus)
+- [Loongson's 3A5000: China's Best Shot?](https://chipsandcheese.com/p/loongsons-3a5000-chinas-best-shot)
+
+**Official documentation** covers the architecture and the products:
+
+- LoongArch Reference Manual, volumes 1 (basic architecture), 2 (privileged
+  resources), 2a (vector), and 3 (instructions).
+- Loongson 3A5000 and 3A6000 product documentation.
+- The Linux kernel's LoongArch port, for privileged details and barrier
+  encodings that the manuals leave to the operating system.
+
+**LoongPerf** holds the instruction-level measurements:
+
+- [Instruction table](https://jia.je/LoongPerf/table.html)
+- [Analysis](https://jia.je/LoongPerf/analysis/)
+- [Methodology](https://jia.je/LoongPerf/methodology/)
+
+**Unofficial LoongArch Intrinsics Guide** documents the vector and LBT
+instructions at intrinsic level:
+
+- [Guide](https://jia.je/unofficial-loongarch-intrinsics-guide/)
+- [LBT Basics](https://jia.je/unofficial-loongarch-intrinsics-guide/lbt_basics/)
+
+Where a core-level description and an instruction-level measurement disagree,
+the measurement is used, and the disagreement is noted on the page.
 
 ## Acknowledgements
 

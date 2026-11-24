@@ -15,14 +15,19 @@ is worth writing where the data layout is under control.
 
 LA664 has four FP/vector pipes, and all four can execute 256-bit packed FP adds.
 Packed 256-bit FP multiply and the basic vector integer operations perform at
-roughly Zen 2 levels. FMA throughput is one per cycle, the same as LA464, so the
-gain over the older core comes from the extra pipes for adds, compares, and
-integer work rather than from a faster FMA.
+roughly Zen 2 levels. FMA throughput is two per cycle on both cores, so the gain
+over the older core comes from the extra pipes for adds, compares, and integer
+work rather than from a faster FMA.
 
 LA464 has two 256-bit vector pipes. Vector integer adds are single-cycle, and the
 core can start two 256-bit vector integer multiplies per cycle, which is a real
 strength for integer SIMD. FP add, multiply, and FMA take 5 cycles, and FMA
-throughput is one per cycle.
+throughput is two per cycle.
+
+According to LoongPerf, `vadd.w` and `xvadd.w` have 1-cycle latency and reach
+4 IPC on LA664, against 2 IPC on LA464. `vmul.w` has 4-cycle latency on both
+cores, and `vfmul.d` and `vfmadd.d` take 5. `vfadd` and `vfsub` fall from 5
+cycles on LA464 to 3 on LA664.
 
 Both cores implement LASX natively at 256 bits rather than splitting every
 operation into two 128-bit halves. An LASX instruction therefore buys the same
@@ -53,10 +58,21 @@ select is a compare plus a `vbitsel`, not a compare plus a branch. This is the
 same branchless idea as the integer select sequences, applied to vectors.
 
 Shuffles and permutations (`vshuf.b`, `vshuf4i`, `vpermi.w`, `vext2xv`,
-`xvpickve`, and their LASX forms) are the expensive group. They run on a narrower
-set of resources than element-wise arithmetic, and a loop that spends most of its
-time shuffling will not reach the peak throughput of the vector pipes. A layout
-that avoids shuffles is worth more than a clever shuffle sequence.
+`xvpickve`, and their LASX forms) have a 1-cycle latency, and LoongPerf measures
+`vshuf.b` and `xvshuf.b` at two per cycle on both cores. They are not a throughput
+bottleneck by themselves, but they consume issue slots and registers, and a long
+chain of shuffles is still a dependency chain. A layout that avoids shuffles is
+worth more than a clever shuffle sequence, not because the shuffle unit is slow,
+but because the surrounding code gets simpler.
+
+The vector integer divider is a separate unit with a larger fixed cost. LoongPerf
+gives 8 to 26 cycles for signed 64-bit elements, 11 to 31 for 32-bit, 17 to 41
+for 16-bit, and 29 to 61 for 8-bit, with the range coming from the quotient
+width; the unsigned forms are a little wider.
+Lanes are processed in parallel, so LSX and LASX have the same latency even
+though LASX carries twice as many lanes, and a partly active vector costs less
+than a full one. Narrow element divides are the slowest, which is the opposite of
+the usual intuition.
 
 There is no horizontal add or horizontal max. Reductions are built from pairwise
 operations and a final horizontal step, and their cost is logarithmic in the
@@ -111,7 +127,7 @@ Use the widest vector that the data allows. LASX is native 256-bit on both cores
 so a 256-bit operation does twice the work of a 128-bit one for the same
 instruction count, and the instruction count is what the front end pays for.
 
-Choose a data layout that avoids shuffles. Structure-of-arrays layouts, padded
+Choose a data layout that avoids extra shuffle instructions. Structure-of-arrays layouts, padded
 rows, and element sizes that match the operation are worth more than any
 instruction-level trick. If a kernel needs a transpose or a wide permutation in
 the inner loop, consider changing the layout instead.
@@ -134,9 +150,3 @@ latency of vector loads and stores, and the penalty for an unaligned access.
 The instruction-level semantics of LSX, LASX, and LBT operations are documented
 in the [Unofficial LoongArch Intrinsics Guide](https://jia.je/unofficial-loongarch-intrinsics-guide),
 with pseudo-code for each intrinsic.
-
-## Sources
-
-- [Loongson 3A6000: A Star among Chinese CPUs](https://chipsandcheese.com/p/loongson-3a6000-a-star-among-chinese-cpus)
-- [Loongson's 3A5000: China's Best Shot?](https://chipsandcheese.com/p/loongsons-3a5000-chinas-best-shot)
-- LoongArch Reference Manual, volume 2a, for the vector instruction set.

@@ -20,15 +20,14 @@ a cluster, and that sharing is independent of SMT.
 
 The out-of-order resources are mostly split in half. The ROB, the integer and
 vector register files, and the load and store queues are statically partitioned
-when the second thread becomes active. A thread cannot use its sibling's half,
-even when the sibling is idle. The schedulers are different: they are watermarked
+when the second thread becomes active, so a thread cannot use its sibling's half
+while the sibling is running. The schedulers are different: they are watermarked
 rather than partitioned, so a thread can use what appears to be around 30 of the
 48 entries even when both threads are running. That is a compromise between
 fairness and the ability to keep a single thread's scheduler full.
 
-The branch predictor is shared, including the BTB and the return stack. The
-return stack is 16 entries in single-thread mode and 8 per thread when SMT is
-active. Code with deep or recursive call chains loses some return prediction when
+The branch predictor is shared, including the BTB. The return stack is 16
+entries in single-thread mode and 8 per thread when SMT is active. Code with deep or recursive call chains loses some return prediction when
 a sibling is running, which is one reason call-heavy workloads see smaller SMT
 gains than tight loops.
 
@@ -105,8 +104,3 @@ Use the operating system's SMT control to run the same benchmark with SMT on and
 off. On Linux that is `/sys/devices/system/cpu/smt/control`, and `lscpu` reports
 the thread siblings. Pinning with `taskset` or `sched_setaffinity` makes the
 sibling relationship explicit.
-
-## Sources
-
-- [Loongson 3A6000: A Star among Chinese CPUs](https://chipsandcheese.com/p/loongson-3a6000-a-star-among-chinese-cpus)
-- Loongson's 3A6000 documentation, for the core and thread counts.

@@ -28,8 +28,9 @@ effect is that code outside the 64 KB L1I runs at a lower instruction rate, and
 the large L1I is what keeps the common case fast.
 
 Public material does not give the fetch block size or instruction buffer depth
-for either core. What is observable is the throughput: LA664 holds roughly 3 IPC while the code fits in
-L2, and LA464 does not reach that, even when its code fits in L2.
+for either core. What is observable is the throughput: LA664 holds roughly 3 IPC
+while the code fits in L2, and LA464's instruction bandwidth from L2 is its weak
+point, so it does not sustain the same rate.
 
 ## Rename and dispatch
 
@@ -93,9 +94,3 @@ For JIT code, write the instructions, then execute `ibar` before jumping into
 them. LoongArch keeps the instruction and data caches coherent in hardware, so
 `ibar` is the ordering step; `cacop` is not needed for ordinary instruction
 fetch.
-
-## Sources
-
-- [Loongson 3A6000: A Star among Chinese CPUs](https://chipsandcheese.com/p/loongson-3a6000-a-star-among-chinese-cpus)
-- [Loongson's 3A5000: China's Best Shot?](https://chipsandcheese.com/p/loongsons-3a5000-chinas-best-shot)
-- LoongArch Reference Manual, volume 3, for the fixed-width instruction format.

@@ -17,7 +17,7 @@ flowchart TB
   SCH("Schedulers<br/>3 × 48 entries")
   ALU("4 × ALU<br/>2 mul · 2 branch")
   AGU("4 × AGU<br/>2 load · 2 store")
-  FPV("4 × FP / vector<br/>1 FMA per cycle")
+  FPV("4 × FP / vector<br/>2 FMA per cycle")
   LSU("LSU<br/>75 load · 64 store")
   MEM("L1D 64 KB · 3c/4c<br/>L2 256 KB · 12c<br/>L3 16 MB shared")
 
@@ -54,7 +54,7 @@ The integer cluster has four ALUs. Two can execute branches and two can
 multiply. Memory has four AGUs, two for loads and two for stores, feeding a
 75-entry load queue and a 64-entry store queue. The FP/vector cluster has four
 pipes: all four handle 256-bit packed FP adds, two handle scalar FP adds, and
-the core can start one FMA per cycle.
+the core can start two FMAs per cycle.
 
 The L1D is 64 KB and 4-way. Its load-to-use latency is 3 cycles for a pointer
 chase and 4 cycles for other dependent integer loads; `fld`, `vld`, and `xvld`
@@ -104,7 +104,7 @@ Four ALUs handle the integer work. Only one branch can resolve per cycle, and
 two integer multiplies can start per cycle with a 4-cycle latency. Integer
 divide is 9 cycles. Two AGUs can issue two loads or one load plus one store. The
 vector cluster has two 256-bit pipes. FP add, multiply, and FMA all take 5
-cycles, and the core starts one FMA per cycle.
+cycles, and the core starts two FMAs per cycle.
 
 Store forwarding takes 7 cycles when the load is fully contained in the store,
 and 14 cycles on a partial overlap. A misaligned load costs 2 cycles; a
@@ -133,13 +133,6 @@ controller. Those belong to the address translation and cache sections, and the
 memory controller in particular differs a lot between the two parts: the 3A5000
 DDR4 controller was a weak point, and the 3A6000 improved it substantially.
 
-## Sources
-
-The numbers above are from Chips and Cheese's microbenchmark articles:
-
-- [Loongson 3A6000: A Star among Chinese CPUs](https://chipsandcheese.com/p/loongson-3a6000-a-star-among-chinese-cpus)
-- [Loongson's 3A5000: China's Best Shot?](https://chipsandcheese.com/p/loongsons-3a5000-chinas-best-shot)
-
 Per-instruction latency and throughput are maintained separately in
-[Instruction latency and throughput](../latency-throughput.md). Where the two
-sources disagree, the measurement wins, and the diagram should be corrected.
+[Instruction latency and throughput](../latency-throughput.md). Where the sources
+disagree, the measurement wins, and the diagram should be corrected.

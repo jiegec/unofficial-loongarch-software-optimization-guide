@@ -10,9 +10,10 @@ application code.
 
 ## How translation works
 
-The page table lives in memory. Linux builds it as four levels, and the base
-address comes from two CSRs, `PGDL` and `PGDH`, selected by the top bit of the
-virtual address. On a
+The page table lives in memory, and its shape is a build-time choice: Linux
+supports 4 KB, 16 KB, and 64 KB pages, with two, three, or four levels depending
+on the combination. A 64-bit build with 16 KB pages defaults to three levels. The base address comes from two
+CSRs, `PGDL` and `PGDH`, selected by the top bit of the virtual address. On a
 TLB miss, the hardware walker reads the page table entries itself and fills the
 TLB. If a level is missing or invalid, the core raises a TLB exception (`TLBL`
 for a load, `TLBS` for a store, `TLBM` for a modify) and the kernel handles it.
@@ -103,13 +104,6 @@ a page actually covers. Allocation sizes and offsets that look fine on x86 may
 straddle pages differently here. For huge pages, the alignment requirement is the
 huge page size, and an `mmap` that is not aligned to it falls back to normal
 pages.
-
-## Sources
-
-The TLB sizes and the L2 TLB latency come from Chips and Cheese's 3A5000 article:
-
-- [Loongson's 3A5000: China's Best Shot?](https://chipsandcheese.com/p/loongsons-3a5000-chinas-best-shot)
-- [Loongson 3A6000: A Star among Chinese CPUs](https://chipsandcheese.com/p/loongson-3a6000-a-star-among-chinese-cpus)
 
 The instruction and CSR names, page sizes, and the direct-mapped windows are
 documented in the LoongArch Reference Manual, volumes 1 and 2. The kernel-side

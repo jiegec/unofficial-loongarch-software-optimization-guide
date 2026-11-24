@@ -20,8 +20,8 @@ The register files overlap: a floating-point register is the low 64 bits of an
 LSX register, and an LSX register is the low 128 bits of the corresponding LASX
 register.
 
-Outside LBT, there is no integer condition-code register and no architectural
-flags. Integer branches compare two registers directly; floating-point branches
+Outside LBT, there is no integer condition-code register and no
+general-purpose flags. Integer branches compare two registers directly; floating-point branches
 test an FCC. This removes the x86-style flag dependency, but it also means there is
 no compare-and-branch fusion to exploit: the compare and the branch are already one
 instruction.
@@ -42,13 +42,14 @@ variable-length encodings, so instruction boundaries follow from the address
 alone. A fetch block always ends on an instruction boundary, and code size is
 proportional to instruction count.
 
-Loads and stores have two addressing forms:
+Loads and stores have two main addressing forms:
 
 - base plus a signed 12-bit immediate, for example `ld.d $a0, $sp, 16`;
 - base plus an index register, for example `ldx.d $a0, $a1, $a2`.
 
-There is no scaled-index addressing and no base-plus-index-plus-displacement
-form. A scaled address such as `a[i * 8]` needs a separate shift or an `alsl.d`
+A third form, `ldptr.w` and `ldptr.d`, is PC-relative and is what the compiler
+uses for globals. There is no scaled-index addressing and no
+base-plus-index-plus-displacement form. A scaled address such as `a[i * 8]` needs a separate shift or an `alsl.d`
 before the load. Branches are PC-relative (`b`, `bl`, `beq`, `bne`, `blt`, …) or
 register-indirect (`jirl`), which is how calls through a pointer and function
 returns work. PC-relative data addresses use `pcalau12i` plus an immediate; large

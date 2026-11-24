@@ -28,14 +28,17 @@ much room the schedulers have to find independent work.
 `mul.d` produces the low half of a 64-bit product, `mulh.d` and `mulhu.d` the
 signed and unsigned high halves, with `.w` forms for 32-bit results. The two
 multiply pipes mean the core can start two independent multiplies per cycle.
-LA464's multiply latency is 4 cycles. LA664 has the same two-pipe arrangement; its
-latency is not in the public material, so measure it before relying on a number.
+LoongPerf measures `mul.d` and `mulh.d` at 4 cycles on both cores, and the two
+multiply pipes mean two independent multiplies can start per cycle.
 
 Division is the slow case. `div.d` and `mod.d` produce quotient and remainder, and
-the operation is iterative, so latency depends on the operand values. Chips and
-Cheese measured divide throughput improving from roughly one divide every nine
-cycles on LA464 to about one every four cycles on LA664. The latency depends strongly on the divisor's magnitude, which is the usual
-behavior for an iterative divider.
+the operation is iterative, so latency depends on the operand values. LoongPerf
+fits the divider as 7 + floor(quotient_bits / 2): it retires two quotient bits per
+cycle. `div.w` tops out at 22 cycles (23 unsigned), `div.d` at 38 (39 unsigned),
+and a zero dividend is the 5-cycle minimum. Both cores implement the same model;
+the only difference is in the remainder path, where LA464's `mod` can leave the
+long path one digit earlier. Throughput is far below one instruction per cycle,
+and the latency is data-dependent, so a single number does not describe it.
 
 Code that divides by a constant should let the compiler turn it into a multiply
 and a shift. Code that divides inside a loop should be restructured, or replaced
@@ -59,6 +62,11 @@ select. A short sequence can replace a branch when the branch is genuinely
 unpredictable, and it avoids the front-end cost of a misprediction.
 When the branch is predictable, the branch is usually cheaper, so this is a
 trade-off to measure.
+
+According to LoongPerf, the CRC unit is the largest single change between the
+two cores. `crc.w.b.w` and its wider forms fall from 5, 7, 11, and 19 cycles on
+LA464 to 1 cycle on LA664, and throughput rises from 0.10–0.29 IPC to 2 IPC.
+`bstrins`, `bytepick`, and `alsl` also double from 2 to 4 IPC.
 
 The `$r0` register is hardwired to zero, which makes zeroing cheap in terms of
 register pressure but not necessarily in terms of execution slots. LA664
@@ -100,9 +108,3 @@ Divide deserves its own sweep over operand values, since a single number does no
 describe it. Multiply and the bit-field instructions are easier: one latency and
 one reciprocal throughput are enough if the measurement is taken on independent
 operations.
-
-## Sources
-
-- [Loongson 3A6000: A Star among Chinese CPUs](https://chipsandcheese.com/p/loongson-3a6000-a-star-among-chinese-cpus)
-- [Loongson's 3A5000: China's Best Shot?](https://chipsandcheese.com/p/loongsons-3a5000-chinas-best-shot)
-- LoongArch Reference Manual, volume 3, for the integer instruction set.

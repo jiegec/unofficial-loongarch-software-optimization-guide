@@ -52,9 +52,10 @@ active. That is smaller than LA464's 32, which is surprising, but the core appea
 fall back to the indirect predictor when the stack overflows, and the measured
 loss is modest. Deep or recursive call chains still pay more here than on the older core.
 
-Two of the four integer ALUs can execute branches. The 6-wide front end and the
-large BTB mean that a hot loop with a modest number of branches is usually
-limited by something other than branch throughput.
+Two of the four integer ALUs can execute branches, and LoongPerf measures
+not-taken branches at two per cycle. The 6-wide front end and the large BTB mean
+that a hot loop with a modest number of branches is usually limited by something
+other than branch throughput.
 
 ## LA464
 
@@ -73,7 +74,11 @@ virtual dispatch but not for a large interpreter.
 
 The return-address stack has 32 entries, twice LA664's. Only one branch can
 resolve per cycle, and the 4-wide front end gives the core less room to recover
-from a misprediction.
+from a misprediction. LoongPerf's branch measurements show the same limit: a
+not-taken branch retires at one per cycle. A taken branch that fits in the BTB
+also costs one cycle, but when the test used 960 static branch sites, far beyond
+the 64-entry BTB, the cost rose to three cycles per branch. That is the BTB
+capacity limit showing up directly in throughput.
 
 ## Making branches predictable
 
@@ -138,11 +143,6 @@ targets per branch.
 
 Per-instruction latency and throughput for branch instructions are in
 [Instruction latency and throughput](../latency-throughput.md). The numbers in
-this section come from the sources below, with the structure of the predictors
-left unknown where the vendors have not documented it.
-
-## Sources
-
-- [Loongson 3A6000: A Star among Chinese CPUs](https://chipsandcheese.com/p/loongson-3a6000-a-star-among-chinese-cpus)
-- [Loongson's 3A5000: China's Best Shot?](https://chipsandcheese.com/p/loongsons-3a5000-chinas-best-shot)
-- LoongArch Reference Manual, volume 3, for the branch instruction forms.
+this section come from Chips and Cheese and LoongPerf, listed on the
+[home page](../index.md#sources); the structure of the predictors is left unknown
+where the vendors have not documented it.

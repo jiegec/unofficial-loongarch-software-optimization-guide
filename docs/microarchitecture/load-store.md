@@ -20,6 +20,10 @@ which means two memory operations per cycle at best and one store per cycle. Tha
 is roughly the level of Neoverse N1 or Zen 1, and well behind the four AGUs on
 LA664.
 
+According to LoongPerf, indexed loads (`ldx.*`) and stores (`st.*`) double from
+1 to 2 instructions per cycle on LA664 compared with LA464, which is what the
+extra AGUs buy.
+
 The addressing forms matter for both. Because there is no scaled index, the
 compiler has to turn `p[i]` into a shift or an `alsl.d` plus a load unless it can
 strength-reduce the index into a pointer walk. Chips and Cheese measured
@@ -106,8 +110,6 @@ itself, the useful measurements are the load-to-use latency for each destination
 class, the forwarding cases (contained, partial, misaligned, line-crossing), the
 queue depths, and the cost of an unaligned access for each width.
 
-## Sources
-
-- [Loongson 3A6000: A Star among Chinese CPUs](https://chipsandcheese.com/p/loongson-3a6000-a-star-among-chinese-cpus)
-- [Loongson's 3A5000: China's Best Shot?](https://chipsandcheese.com/p/loongsons-3a5000-chinas-best-shot)
-- LoongArch Reference Manual, volume 3, for the addressing modes.
+LoongPerf's load-latency analysis confirms the numbers used elsewhere in this
+guide: integer loads are 4 cycles on both cores, `fld`, `vld`, and `xvld` are 5,
+and only LA664's base-address forwarding case gets to 3.

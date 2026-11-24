@@ -39,6 +39,7 @@ cache can be indexed before the TLB result is available.
 
 On LA664 the L1D has a 3-cycle load-to-use latency for a pointer chase and 4
 cycles for other dependent integer loads; `fld`, `vld`, and `xvld` take 5 cycles.
+LoongPerf's load-latency measurements agree with that split.
 It can serve two 256-bit accesses per cycle in any mix of loads and stores, which
 is what the four AGUs and the vector pipes need. Store forwarding takes 7 cycles
 when the load is fully contained in the store and 14 cycles on a partial overlap.
@@ -101,13 +102,6 @@ The L2 is small on both cores, and the L3 is shared by four cores. A single
 thread can use most of the 16 MB L3, but four active threads each get much less
 effective capacity, and the bandwidth per core drops with them. Workloads that
 stream through memory should not expect L3 to absorb the stream.
-
-## Sources
-
-The cache sizes, latencies, and bandwidth numbers come from Chips and Cheese:
-
-- [Loongson 3A6000: A Star among Chinese CPUs](https://chipsandcheese.com/p/loongson-3a6000-a-star-among-chinese-cpus)
-- [Loongson's 3A5000: China's Best Shot?](https://chipsandcheese.com/p/loongsons-3a5000-chinas-best-shot)
 
 Per-instruction latency and throughput live in
 [Instruction latency and throughput](../latency-throughput.md). Cache behavior

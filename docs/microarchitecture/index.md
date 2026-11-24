@@ -6,9 +6,10 @@ hide:
 
 This chapter is the processor model the rest of the guide refers to. It starts at
 the front end, follows instructions through execution, and explains what each
-mechanism means for software. Every section begins with the principle behind a
-mechanism, then documents LA664 and LA464 separately, and says so when the two
-cores behave the same.
+mechanism means for software. Most sections begin with the principle behind a
+mechanism, then document LA664 and LA464; where the two cores agree, the section
+says so. The cache hierarchy and the branch section are organized by mechanism
+instead, with the per-core differences inside each topic.
 
 The chapter opens with the instruction set architecture. That section is not a
 manual replacement; it collects the register file, instruction formats and

@@ -10,16 +10,15 @@ individual instruction latencies.
 ## Execution resources
 
 LA664 has four FP/vector pipes. All four can execute 256-bit packed FP adds,
-which gives it strong vector FP throughput for a core at this clock. Scalar FP is
-more restricted: only two pipes handle scalar FP adds, and scalar FP multiplies
-appear to use different pipes from the vector ones. Packed 256-bit multiply and
-basic vector integer operations perform at roughly Zen 2 levels. FP add latency
-is 3 cycles, and the core can start one FMA per cycle.
+and LoongPerf measures scalar `fadd.d` and `fsub.d` at 4 IPC, twice LA464's 2.
+Scalar `fmul.d` and `fmadd.d` run at 2 IPC. Packed 256-bit multiply and basic
+vector integer operations perform at roughly Zen 2 levels. FP add latency is 3
+cycles.
 
 LA464 has two 256-bit vector pipes. FP add, multiply, and FMA all take 5 cycles,
-and FMA throughput is one per cycle. The two-pipe arrangement is a conservative
-LASX implementation, but it is still native 256-bit rather than two 128-bit
-halves.
+and LoongPerf measures scalar FP ALU operations at 2 IPC and FMA at 2 IPC. The
+two-pipe arrangement is a conservative LASX implementation, but it is still native
+256-bit rather than two 128-bit halves.
 
 Both cores have 32 FP registers (`$f0` to `$f31`) that alias the low 64 bits of
 the LSX registers. That aliasing matters when scalar and vector code are mixed,
@@ -27,20 +26,27 @@ and it is covered in [Vector execution](vector.md) only
 briefly, so keep it in mind here: a scalar write does not necessarily clear the
 upper bits of the vector register that shares the number.
 
-FMA throughput is one per cycle on both cores. That is half of what Zen 2 or
-Skylake can do, and it is the number that caps a dot product or a matrix
-multiply. Adding more FP pipes did not raise the FMA rate, so the newer core's
-advantage is in latency, vector width utilization, and the four pipes for packed
-adds rather than in fused multiply-add.
+LoongPerf measures FMA throughput at two per cycle on both cores, so the FMA
+rate did not change with the newer core. Chips and Cheese reports one per cycle;
+the independent-lane measurement is used here. The gain over LA464 is in latency,
+in scalar add and subtract throughput, and in the four pipes for packed adds
+rather than in fused multiply-add.
 
 ## Dependency chains
 
 FP code is usually limited by a dependency chain rather than by instruction
 count. A dot product with a single accumulator turns into a chain of FMAs, and
 the chain latency, not the FMA throughput, sets the speed. Unrolling with four
-accumulators breaks the chain and lets the core issue one FMA per cycle instead
-of one every few cycles; the FMA throughput of one per cycle is still the
-ceiling.
+accumulators breaks the chain and lets the core issue two FMAs per cycle instead
+of one every few cycles; two per cycle is still the ceiling.
+
+According to LoongPerf, `fmul.d` and `fmadd.d` have 5-cycle latency on both
+cores. The scalar conversions are cheap: `fcvt.d.s` and `fcvt.s.d` take 2 cycles,
+while `ftint.w.d` and `ffint.d.w` take 4. Moving between the FPU and the integer
+registers costs 2 cycles in either direction (`movfr2gr.d`, `movgr2fr.d`), and
+`fsel` is 1 cycle on both cores. `fcmp.ceq.d` is 1 cycle on LA664 and 2 on LA464.
+FCC moves are much cheaper on LA664: LoongPerf puts `movcf2gr` at 2 cycles
+against 7 on LA464, and `movgr2cf` at 2 against 15.
 
 The FMA-versus-multiply-and-add choice depends on where the critical path is. If
 the chain goes through the product, FMA is shorter than a multiply followed by an
@@ -59,16 +65,25 @@ the edges of a routine avoids both the latency and the pipe conflict.
 ## Division, square root, and estimates
 
 Division and square root are iterative and much slower than add or multiply.
-Neither vendor publishes a single latency, because the result depends on the
-operands, and the safe assumption is that a divide in an inner loop is a mistake
-unless the algorithm needs it.
+LoongPerf fits the unit as a digit-at-a-time datapath that retires four mantissa
+bits per cycle. For double precision, an inexact `fdiv.d` takes 23 cycles and an
+inexact `fsqrt.d` takes 36. Single precision is 16 and 22. Exact results,
+zero, infinity, and NaN short-circuit the unit and finish in 8 to 11 cycles, and
+a subnormal operand adds one digit time. The divider and square root behave the
+same on LA464 and LA664, so the numbers are not a reason to prefer one core for
+this code.
+
+The vector forms follow the scalar unit for 64-bit lanes: `vfdiv.d` is 23 cycles,
+and `vfsqrt.d` is 36. Single precision is the odd case, because the vector unit
+makes two passes for it: `vfdiv.s` is 27 cycles, slower than the scalar 16. A
+single-precision vector divide is not a throughput win over scalar unless the
+lane count is high enough to pay for the extra passes.
 
 When the last bits are not required, the usual pattern is an estimate followed by
-a Newton iteration. `frsqrte` gives a reciprocal square root estimate on both
-cores, and `frecipe` adds a reciprocal estimate on LA664. One or two Newton steps
-turn the estimate into a result that is accurate enough for most graphics,
-physics, and machine-learning code, and the whole sequence is still cheaper than
-a hardware divide.
+a Newton iteration. LoongPerf measures `frsqrte.d` and `frecipe.d` at 5 cycles on LA664. One or two Newton steps, each
+a few FMA operations, turn the estimate into a result that is accurate enough for
+most graphics, physics, and machine-learning code, and the whole sequence is still
+well under the 23 cycles of a hardware divide.
 
 If the exact result is required, keep the divide out of the loop: compute the
 reciprocal once and multiply, or restructure the algorithm so that the division
@@ -99,7 +114,7 @@ code. Scalar FP on LA664 is limited to two add pipes and a separate multiply
 path, so a scalar-heavy loop leaves most of the FPU idle.
 
 Unroll dot products and similar reductions with several accumulators, but do not
-expect more than one FMA per cycle. Keep the number of conversions and
+expect more than two FMAs per cycle. Keep the number of conversions and
 register-crossing moves small, and keep rounding-mode changes out of the loop.
 
 Do not divide inside a loop unless the algorithm requires it. Use `frsqrte`
@@ -114,14 +129,7 @@ vector width when switching.
 ## What to measure
 
 Per-instruction latency and throughput are in
-[Instruction latency and throughput](../latency-throughput.md). The numbers that
-are not published, and that are worth measuring on each core, are the divide and
-square root latency over a range of operands, the denormal penalty for add,
-multiply, and FMA, the conversion latencies, and the cost of a rounding-mode
-change.
-
-## Sources
-
-- [Loongson 3A6000: A Star among Chinese CPUs](https://chipsandcheese.com/p/loongson-3a6000-a-star-among-chinese-cpus)
-- [Loongson's 3A5000: China's Best Shot?](https://chipsandcheese.com/p/loongsons-3a5000-chinas-best-shot)
-- LoongArch Reference Manual, volumes 1 and 3, for FCSR, conversions, and the FP instruction set.
+[Instruction latency and throughput](../latency-throughput.md), and LoongPerf
+covers the divide and square root classes. The remaining unknowns are the
+denormal penalty for add, multiply, and FMA, the conversion latencies, and the
+cost of a rounding-mode change.

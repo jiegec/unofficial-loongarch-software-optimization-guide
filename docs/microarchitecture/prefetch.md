@@ -40,6 +40,10 @@ is implementation-defined beyond the values the compiler uses. GCC emits
 mapping `__builtin_prefetch(addr, rw, locality)` uses; the locality argument has
 no separate encoding in the compiler's output, so it should not be relied on.
 
+According to LoongPerf, `preld` and `preldx` both issue at one per cycle on
+LA664 and LA464, so each prefetch costs an instruction slot even when the line
+is already in cache.
+
 The instruction is a hint. A core may ignore it, and it may be dropped when the
 line cannot be prefetched. That makes it safe to sprinkle in code, but it also
 means a prefetch that does nothing is invisible unless the code is measured.
@@ -110,9 +114,3 @@ same prefetches are added to a bandwidth-bound loop.
 
 Per-instruction latency and throughput for `preld` and `preldx` are in
 [Instruction latency and throughput](../latency-throughput.md).
-
-## Sources
-
-- LoongArch Reference Manual, volume 3, for `preld` and `preldx`.
-- GCC's LoongArch back end, which maps read prefetches to hint 0 and write prefetches to hint 8.
-- [Chips and Cheese on 3A6000](https://chipsandcheese.com/p/loongson-3a6000-a-star-among-chinese-cpus), for instruction prefetching.

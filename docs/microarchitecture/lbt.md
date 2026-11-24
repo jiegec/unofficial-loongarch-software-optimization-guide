@@ -7,9 +7,10 @@ loads and stores that MIPS guests expect. The goal is to remove the
 instruction-by-instruction software sequences that a translator would otherwise
 emit for every guest instruction.
 
-LBT is an optional extension. The cores in this guide implement it, but software
-that depends on it should check `cpucfg` first, the same way it would check for
-LSX or LASX.
+LBT is an optional extension, and the x86, Arm, and MIPS modes are reported
+separately. The cores in this guide implement it, but software that depends on a
+particular mode should check the hardware capability bits for that mode rather
+than assume the whole extension is present.
 
 ## Registers and state
 
@@ -25,6 +26,11 @@ such as `x86add`, `x86adc`, `x86sub`, `x86sbb`, `x86and`, `x86or`, `x86xor`, and
 the x86 shift and rotate family update those flags directly. A translator does
 not have to compute the flags in software and does not have to spill them between
 guest instructions.
+
+According to LoongPerf, `movgr2scr` runs at 1 IPC on both cores, while
+`movscr2gr` runs at 1 IPC on LA664 and 2 IPC on LA464. The emulated arithmetic
+is cheap too: `x86add.d` and `armadd.w` both have 2-cycle latency and 0.5 IPC,
+and `setx86j` has 1-cycle latency and 1 IPC.
 
 The scratch registers are useful for the host side of the translator. An
 emulator can keep a few guest or host values in `$scr0` to `$scr3` across calls,
@@ -138,9 +144,3 @@ update, the cost of a predicated Arm instruction, the x87 stack operations, and
 the unaligned MIPS loads and stores. Those are better measured with a small
 translator benchmark than with a single-instruction loop, because the dependency
 on LBT4 is what usually limits the throughput.
-
-## Sources
-
-- [Unofficial LoongArch Intrinsics Guide: LBT Basics](https://jia.je/unofficial-loongarch-intrinsics-guide/lbt_basics/)
-- LoongPerf, for LBT instruction latencies.
-- LoongArch Reference Manual, for the LBT instruction set.
