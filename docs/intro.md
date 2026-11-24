@@ -10,7 +10,7 @@ floating-point instruction sets.
 
 ## Intended audience
 
-This book is intended for:
+This guide is intended for:
 
 - compiler and assembler developers working on LoongArch back ends,
 - runtime, libraries, and kernel developers who tune LoongArch code,
