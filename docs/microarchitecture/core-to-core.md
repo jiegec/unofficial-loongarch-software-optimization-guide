@@ -55,6 +55,23 @@ governor put some of them at 20 to 39 ns; those were frequency or scheduling
 artifacts rather than a property of the cores. Excluding all sibling pairs, the
 cross-core median is 26.9 ns.
 
+## What the matrix says about the fabric
+
+The cross-core part of both matrices is almost additive. For the 3C6000/S,
+after removing the 16 SMT pairs, fitting `latency(i,j) = a_i + a_j - mean`
+leaves a residual standard deviation of 0.4 ns and a maximum residual of 1.5 ns.
+The 3C5000 is similar, at 0.4 ns and 1.1 ns. Grouping cores into blocks of two,
+four, or eight gives the same mean latency within a block as across blocks.
+
+That is what a shared L3 and a common interconnect path look like: each core
+contributes a fixed offset, and a pair's latency is the sum of the two offsets.
+It is not what local L3 clusters or direct neighbor links look like, because
+those would make some pairs cheaper. The four bands are therefore per-core
+attachment offsets, not four local clusters.
+
+Latency alone cannot distinguish a ring, a mesh, and a crossbar. That needs
+bandwidth under concurrent pairs, uncore counters, or an address-slice sweep.
+
 ## What this means for software
 
 These are the costs that a synchronization operation pays before any lock
