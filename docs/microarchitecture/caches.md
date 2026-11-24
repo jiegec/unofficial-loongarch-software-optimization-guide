@@ -1,9 +1,11 @@
 # Cache hierarchy
 
 Both cores have the same three-level shape: a private 64 KB L1 instruction cache
-and a private 64 KB L1 data cache, a private 256 KB L2, and a 16 MB L3 shared by
-four cores. The differences are in latency, bandwidth, and how well each level
-feeds the core. The numbers below are cycles at the 2.5 GHz clock both parts run
+and a private 64 KB L1 data cache, a private 256 KB L2, and a shared L3. On the
+4-core desktop parts used for most of the measurements below, the L3 is 16 MB
+shared by four cores; the server parts package the same cores with a different
+L3 topology, described in the L3 section. The differences are in latency,
+bandwidth, and how well each level feeds the core. The numbers below are cycles at the 2.5 GHz clock both parts run
 at, taken from Chips and Cheese's measurements unless stated otherwise.
 
 ## L1 instruction cache
@@ -72,13 +74,23 @@ on its own.
 
 ## L3
 
-The L3 is 16 MB, shared by the four cores of a cluster, and on LA464 it is a
-victim cache built from four banks behind a switch. Its latency is about 40
+On the 4-core desktop parts the L3 is 16 MB, shared by the four cores of a
+cluster, and on LA464 it is a victim cache built from four banks behind a
+switch. Its latency is about 40
 cycles on LA464, and LA664 brings that down by a couple of cycles. Bandwidth is
 where the newer core gains more: LA464 gives a single core about 13.7 bytes per
 cycle and just over 10 when all four cores are active, while LA664 gives a single
 core 18.7 and still 16.55 with every thread loaded. The all-core number matters
 because the L3 is shared, and it was a weak point on LA464.
+
+Server parts package the same cores with more L3: the 3C5000 has 32 MB total,
+and the 3C6000/S has 32 MB per die shared by the cores on that die. Both
+core-to-core measurements are within one NUMA node, so the latency bands on the
+[core-to-core latency](core-to-core.md) page are not L3 partitions. `lscpu -C`
+can present a different number of instances or a different total depending on
+how the firmware describes the hierarchy; the capacities here are from Loongson's
+product documentation. The latency and bandwidth numbers above are for the
+4-core desktop parts.
 
 An L3 miss goes to DRAM. Measured latency is about 144 ns on 3A5000 and 104 ns on
 3A6000. Both parts run at 2.5 GHz, so the cycle counts behind those numbers are
