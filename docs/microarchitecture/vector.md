@@ -139,6 +139,7 @@ Keep reductions out of the inner loop. Accumulate into a vector, then do one
 horizontal step at the end. For FP reductions, several vector accumulators hide
 the FMA latency, and the two-FMA-per-cycle limit still applies.
 
+<!--
 ## What to measure
 
 Per-instruction latency and throughput are in
@@ -146,6 +147,7 @@ Per-instruction latency and throughput are in
 numbers worth measuring on each core are the throughput of element-wise add,
 multiply, and compare, the throughput and latency of the shuffle group, the
 latency of vector loads and stores, and the penalty for an unaligned access.
+-->
 
 The instruction-level semantics of LSX, LASX, and LBT operations are documented
 in the [Unofficial LoongArch Intrinsics Guide](https://jia.je/unofficial-loongarch-intrinsics-guide),

@@ -135,7 +135,7 @@ instructions in LBT cover the stack and tag bookkeeping, but the guest's
 exception behavior and precision control are still the translator's
 responsibility.
 
-## What to measure
+## Measuring a translator
 
 LoongPerf covers LBT instructions alongside the base ISA, so the per-instruction
 latency and throughput are in [Instruction latency and throughput](../latency-throughput.md).

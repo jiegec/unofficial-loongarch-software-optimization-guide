@@ -104,7 +104,7 @@ For streaming stores, the write hint tells the core that the line will be
 overwritten. Whether that avoids a read-for-ownership depends on the core and is
 worth measuring; on a write-once stream it can be a large win.
 
-## What to measure
+## Measuring prefetch behavior
 
 The hardware prefetcher behavior is unknown, so measure it with stride and
 stream sweeps before writing software prefetches. For `preld` itself, measure the

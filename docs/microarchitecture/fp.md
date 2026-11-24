@@ -127,6 +127,7 @@ updates the low 64 bits of the corresponding vector register, and the core may
 have to merge the rest. Choose one width for a hot region, and zero the full
 vector width when switching.
 
+<!--
 ## What to measure
 
 Per-instruction latency and throughput are in
@@ -134,3 +135,4 @@ Per-instruction latency and throughput are in
 covers the divide and square root classes. The remaining unknowns are the
 denormal penalty for add, multiply, and FMA, and the cost of a rounding-mode
 change.
+-->

@@ -103,6 +103,7 @@ Use the full width of the L1D. Two 256-bit accesses per cycle are available on
 both cores in the load direction, and LA664 can do two stores as well. A vector
 loop that issues four 128-bit accesses wastes half of that.
 
+<!--
 ## What to measure
 
 Per-instruction latency and throughput are in
@@ -114,3 +115,4 @@ queue depths, and the cost of an unaligned access for each width.
 LoongPerf's load-latency analysis confirms the numbers used elsewhere in this
 guide: integer loads are 4 cycles on both cores, `fld`, `vld`, and `xvld` are 5,
 and only LA664's base-address forwarding case gets to 3.
+-->

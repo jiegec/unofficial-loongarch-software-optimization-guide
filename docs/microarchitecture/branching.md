@@ -133,6 +133,7 @@ unrolling is a per-core question: LA664 has the larger front end and the second
 level BTB, while LA464 has the smaller front end and benefits more from keeping
 the loop compact.
 
+<!--
 ## What to measure
 
 The public material gives predictor capacities and accuracy, not the
@@ -147,3 +148,4 @@ Per-instruction latency and throughput for branch instructions are in
 this section come from Chips and Cheese and LoongPerf, listed on the
 [home page](../index.md#sources); the structure of the predictors is left unknown
 where the vendors have not documented it.
+-->

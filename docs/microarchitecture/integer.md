@@ -97,6 +97,7 @@ strength-reduce it. If it is not, consider a reciprocal or a different algorithm
 The divider's data-dependent latency is the most persistent performance problem
 in the integer unit.
 
+<!--
 ## What to measure
 
 Per-instruction latency and throughput are maintained in
@@ -109,3 +110,4 @@ Divide deserves its own sweep over operand values, since a single number does no
 describe it. Multiply and the bit-field instructions are easier: one latency and
 one reciprocal throughput are enough if the measurement is taken on independent
 operations.
+-->

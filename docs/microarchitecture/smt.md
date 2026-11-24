@@ -89,7 +89,7 @@ running different code at different addresses compete for it. Running identical
 worker threads is therefore friendlier to the predictor than running different
 phases of a pipeline.
 
-## What to measure
+## Measuring SMT on your workload
 
 Measure single-thread performance with the sibling idle and with the sibling busy.
 The difference is the interference cost, and it is the number that decides whether

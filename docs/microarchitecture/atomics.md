@@ -133,7 +133,7 @@ benchmark with several threads measures throughput, and the two can point in
 opposite directions. The `am*` instruction that wins uncontended may not win when
 eight threads are hammering the same line.
 
-## What to measure
+## Measuring synchronization costs
 
 Per-instruction latency and throughput are in
 [Instruction latency and throughput](../latency-throughput.md). The measurements
