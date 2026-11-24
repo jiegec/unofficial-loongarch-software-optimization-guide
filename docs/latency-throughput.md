@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+  - toc
+---
 # Instruction latency and throughput
 
 Instruction-level performance data for LA464 and LA664 is maintained in

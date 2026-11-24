@@ -20,6 +20,7 @@ nav:
   - Introduction: intro.md
   - Microarchitecture:
       - Microarchitecture overview: microarchitecture/index.md
+      - Instruction set architecture: microarchitecture/isa.md
       - Processor block diagram: microarchitecture/block-diagram.md
       - Cache hierarchy: microarchitecture/caches.md
       - Address translation: microarchitecture/address-translation.md
@@ -34,7 +35,6 @@ nav:
       - Simultaneous multithreading: microarchitecture/smt.md
       - Atomics and memory ordering: microarchitecture/atomics.md
   - Instruction latency and throughput: latency-throughput.md
-  - Compiler and toolchain notes: toolchain.md
 
 plugins:
   - search
