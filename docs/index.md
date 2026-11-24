@@ -38,8 +38,10 @@ core-level numbers:
 
 **Official documentation** covers the architecture and the products:
 
-- LoongArch Reference Manual, volumes 1 (basic architecture), 2 (privileged
-  resources), 2a (vector), and 3 (instructions).
+- [LoongArch Documentation](https://loongson.github.io/LoongArch-Documentation/),
+  which hosts the LoongArch Reference Manual: volume 1 (basic architecture),
+  volume 2 (vector extensions), and volume 3 (virtualization and binary
+  translation extensions).
 - Loongson 3A5000 and 3A6000 product documentation.
 - The Linux kernel's LoongArch port, for privileged details and barrier
   encodings that the manuals leave to the operating system.

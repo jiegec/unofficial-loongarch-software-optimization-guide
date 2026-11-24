@@ -106,6 +106,6 @@ huge page size, and an `mmap` that is not aligned to it falls back to normal
 pages.
 
 The instruction and CSR names, page sizes, and the direct-mapped windows are
-documented in the LoongArch Reference Manual, volumes 1 and 2. The kernel-side
+documented in the LoongArch Reference Manual, volume 1. The kernel-side
 behavior (page size, huge pages, ASID handling) is in the Linux LoongArch port.
 Where the TLB entry counts are not public, the page says so rather than guessing.
