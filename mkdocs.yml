@@ -1,5 +1,5 @@
 site_name: Unofficial LoongArch Software Optimization Guide
-site_description: Unofficial LoongArch software optimization guide for LA464/LA664
+site_description: Unofficial software optimization guide for the LoongArch LA464 and LA664 cores
 site_url: https://jia.je/unofficial-loongarch-software-optimization-guide
 repo_url: https://github.com/jiegec/unofficial-loongarch-software-optimization-guide
 repo_name: jiegec/unofficial-loongarch-software-optimization-guide
@@ -12,6 +12,7 @@ theme:
   features:
     - navigation.tabs
     - navigation.tabs.sticky
+    - navigation.sections
     - content.code.copy
 
 nav:
@@ -31,4 +32,3 @@ markdown_extensions:
   - pymdownx.highlight
   - pymdownx.superfences
   - pymdownx.details
-
