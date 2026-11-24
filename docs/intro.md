@@ -1,3 +1,7 @@
+---
+hide:
+  - navigation
+---
 # Introduction
 
 This guide collects optimization information for LoongArch software, with the

@@ -1,3 +1,7 @@
+---
+hide:
+  - navigation
+---
 # Unofficial LoongArch Software Optimization Guide
 
 An unofficial software optimization guide for the LoongArch architecture. It
