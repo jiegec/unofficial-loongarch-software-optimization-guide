@@ -28,7 +28,7 @@ instruction.
 
 LBT adds its own architectural state. It provides four 64-bit scratch registers,
 `$scr0`–`$scr3`, which software moves to and from the general-purpose registers
-with `movgr2scr` and `movscr2gr`; emulators use them to hold guest registers, and
+with `movgr2scr` and `movscr2gr`. Emulators use them to hold guest registers, and
 `jiscr0`/`jiscr1` use them as alternate branch targets. A fifth register, LBT4,
 holds the x86 EFLAGS in its low 32 bits and the x87 FTOP in its high 32 bits, so
 that LBT's flag operations and condition helpers (`setx86j`, `setarmj`, …) can
@@ -77,16 +77,16 @@ floating-point condition codes. Unconditional control flow uses PC-relative `b`
 and `bl` for direct jumps and calls, and `jirl` for register-indirect jumps, calls
 through a pointer, and returns.
 
-Memory access is `ld.d` and `st.d` with a base plus immediate offset, `ldx.d` and
-`stx.d` with a base plus index register, and the PC-relative `ldptr.d`. There is
+Loads and stores use `ld.d`/`st.d` with a base plus immediate offset,
+`ldx.d`/`stx.d` with a base plus index register, or the PC-relative `ldptr.d`. There is
 no scaled index. Atomics require natural alignment; ordinary loads and stores may
 be unaligned on cores that implement the UAL capability (see Alignment). Atomics come in two
 families: the reservation-based `ll.w`/`sc.w` and `ll.d`/`sc.d` pairs, and the
 single-instruction `amadd.d`, `amswap.d`, `amand.d`, `amor.d`, `amxor.d`,
 `ammax.d`, and `ammin.d`.
 
-Floating point is covered by `fadd.d`, `fsub.d`, `fmul.d`, `fdiv.d`, `fmadd.d`,
-and `fsqrt.d`, plus the single-precision forms. Comparisons such as
+Floating point has `fadd.d`, `fsub.d`, `fmul.d`, `fdiv.d`, `fmadd.d`, and
+`fsqrt.d`, plus the single-precision forms. Comparisons such as
 `fcmp.ceq.d` and `fcmp.clt.d` write a floating-point condition code rather than a
 general-purpose register; `fsel` selects a value without branching, and
 `movfr2gr.d` and `movgr2fr.d` move values between the FPU and the integer
@@ -99,21 +99,17 @@ System and maintenance instructions are the last group: `dbar` and `ibar` order
 memory and instruction fetch, `cacop` performs cache maintenance, `cpucfg`
 reports the CPU's features, and `idle` suspends the core.
 
-Sequence-building instructions deserve special mention: `slt` and `sltu` turn a
-comparison into a 0/1 value, `maskeqz` and `masknez` turn it into a select, and
-`fsel` does the same for floating point. These are the branchless alternatives to
-a conditional branch.
+A few instructions exist mainly to build branchless sequences. `slt` and `sltu`
+turn a comparison into a 0/1 value; `maskeqz` and `masknez` use it to select
+between two values, and `fsel` does the same for floating point. They are the
+alternative to a conditional branch.
 
 ## Extensions
 
 LoongArch is defined as a base ISA plus optional extensions. The base is the
-64-bit V1.0 instruction set; on top of it, these extensions exist:
-
-- **LSX** — 128-bit vector instructions.
-- **LASX** — 256-bit vector instructions.
-- **LBT** — binary translation instructions, used to accelerate x86, Arm, and
-  MIPS emulation.
-- **LVZ** — virtualization support.
+64-bit V1.0 instruction set. The optional extensions are LSX (128-bit vectors),
+LASX (256-bit vectors), LBT (binary translation instructions, used to accelerate
+x86, Arm, and MIPS emulation), and LVZ (virtualization).
 
 LoongArch V1.1 is a later revision of the ISA rather than a separate extension: it
 adds instructions such as quadword atomics, reciprocal estimates, and
@@ -167,8 +163,8 @@ accesses, and `ibar` orders instruction fetches with respect to prior stores.
 Addresses come in two flavors. Normal memory is mapped through the page tables,
 with the usual TLB hierarchy. LoongArch also provides direct-mapped windows
 (DMW): a small number of windows that map a range of physical memory with a fixed
-memory access type — cached, strongly ordered uncached, or weakly ordered uncached
-— without a page table. Device registers are accessed through an uncached or
+memory access type (cached, strongly ordered uncached, or weakly ordered uncached)
+without using a page table. Device registers are accessed through an uncached or
 weakly ordered uncached window, so that a read reaches the device and a store is
 not held in a cache.
 
@@ -197,15 +193,15 @@ specification; the guide only relies on the register roles above.
 
 ## What differs between the two cores
 
-The ISA is the same family on both cores, so the material in this section applies
-to both. The differences are in which optional instructions are implemented and
-in how the core executes them, not in what the instructions mean:
+Both cores implement the same ISA family, so the material in this section applies
+to both. They differ in which optional instructions are implemented and in how the
+core executes them, not in what the instructions mean.
 
-- **LA664** is the newer core. It implements LoongArch V1.1, adds SMT, and has more
-  out-of-order and execution resources.
-- **LA464** is the older baseline. It implements LoongArch V1.0 only: V1.1
-  instructions are illegal on this core, so code that has to run everywhere should
-  be compiled for LA464, with V1.1 instructions confined to a dispatched path.
+LA664 is the newer core. It implements LoongArch V1.1, adds SMT, and has more
+out-of-order and execution resources. LA464 is the older baseline and implements
+V1.0 only, so V1.1 instructions are illegal on it. Code that has to run everywhere
+should be compiled for LA464, with V1.1 instructions confined to a dispatched
+path.
 
 The following sections split the microarchitectural details per core when the
 mechanism differs, and say so when the two cores behave the same.

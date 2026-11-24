@@ -13,5 +13,5 @@ latency and reciprocal throughput on real hardware.
 
 LoongPerf covers the base ISA, LBT, LSX, and LASX, and lets you compare
 microarchitectures side by side. Use it together with the mechanisms described in
-the microarchitecture sections of this guide; the guide explains why a number
-matters, LoongPerf provides the number itself.
+the microarchitecture sections of this guide. The guide explains why a number
+matters; LoongPerf provides the number itself.
