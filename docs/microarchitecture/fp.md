@@ -58,8 +58,8 @@ it is one instruction and one pipe slot.
 Conversions and moves are part of the chain too. `fcvt.s.d` and `fcvt.d.s`
 convert between formats, `ftint.w.d` and `ffint.d.w` convert between floating
 point and integer, and `movfr2gr.d` and `movgr2fr.d` move values between the FPU
-and the integer registers. The last pair crosses the domain boundary and is
-usually the most expensive. Keeping values in FP registers and converting only at
+and the integer registers. The last pair crosses the domain boundary, but it
+costs 2 cycles in each direction. Keeping values in FP registers and converting only at
 the edges of a routine avoids both the latency and the pipe conflict.
 
 ## Division, square root, and estimates
@@ -80,10 +80,11 @@ single-precision vector divide is not a throughput win over scalar unless the
 lane count is high enough to pay for the extra passes.
 
 When the last bits are not required, the usual pattern is an estimate followed by
-a Newton iteration. LoongPerf measures `frsqrte.d` and `frecipe.d` at 5 cycles on LA664. One or two Newton steps, each
-a few FMA operations, turn the estimate into a result that is accurate enough for
-most graphics, physics, and machine-learning code, and the whole sequence is still
-well under the 23 cycles of a hardware divide.
+a Newton iteration. LoongPerf measures `frsqrte.d` and `frecipe.d` at 5 cycles on
+LA664. One or two Newton steps, each a few FMA operations, turn the estimate into a
+result that is accurate enough for most graphics, physics, and machine-learning
+code, and the whole sequence is still well under the 23 cycles of a hardware
+divide.
 
 If the exact result is required, keep the divide out of the loop: compute the
 reciprocal once and multiply, or restructure the algorithm so that the division
@@ -110,8 +111,8 @@ Check exceptions at the end of a region, not inside the loop.
 
 Use vector FP where the data allows it. LA664's four 256-bit pipes are the
 fastest execution resource in the core, and LA464's two pipes still beat scalar
-code. Scalar FP on LA664 is limited to two add pipes and a separate multiply
-path, so a scalar-heavy loop leaves most of the FPU idle.
+code. LA664 can issue four scalar FP adds per cycle and two scalar multiplies, so
+a scalar-heavy loop still leaves some of the FPU idle.
 
 Unroll dot products and similar reductions with several accumulators, but do not
 expect more than two FMAs per cycle. Keep the number of conversions and
@@ -121,7 +122,7 @@ Do not divide inside a loop unless the algorithm requires it. Use `frsqrte`
 (and `frecipe` on LA664) with a Newton step when approximate results are
 acceptable, and amortize exact division when they are not.
 
-Finally, be careful when mixing scalar and vector code. Writing an `$f` register
+Finally, be careful when mixing scalar and vector code. Writing a scalar FP register
 updates the low 64 bits of the corresponding vector register, and the core may
 have to merge the rest. Choose one width for a hot region, and zero the full
 vector width when switching.
@@ -131,5 +132,5 @@ vector width when switching.
 Per-instruction latency and throughput are in
 [Instruction latency and throughput](../latency-throughput.md), and LoongPerf
 covers the divide and square root classes. The remaining unknowns are the
-denormal penalty for add, multiply, and FMA, the conversion latencies, and the
-cost of a rounding-mode change.
+denormal penalty for add, multiply, and FMA, and the cost of a rounding-mode
+change.

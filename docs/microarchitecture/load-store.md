@@ -3,8 +3,9 @@
 The load-store unit sits between the execution pipes and the L1 data cache. It
 contains the address generators, the load and store queues, the forwarding logic,
 and the machinery that keeps memory operations in the right order. On LoongArch
-its behavior is shaped by one ISA detail: loads and stores can only use a base
-plus a 12-bit immediate, or a base plus an index register. There is no scaled
+its behavior is shaped by one ISA detail: most loads and stores use a base plus a
+12-bit immediate or a base plus an index register, with `ldptr` as the
+PC-relative form. There is no scaled
 index, so an address like `a[i * 8]` costs an extra instruction before the load
 even starts.
 

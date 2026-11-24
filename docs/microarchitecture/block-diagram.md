@@ -2,8 +2,8 @@
 
 The diagrams below show the two cores at the same level of detail: front end,
 rename, out-of-order window, schedulers, execution pipes, and the memory path.
-The numbers come from the microbenchmark work published by Chips and Cheese, and
-they describe the core rather than the package. Clock speed, the memory
+The numbers come from the microbenchmark work published by Chips and Cheese and
+LoongPerf, and they describe the core rather than the package. Clock speed, the memory
 controller, and the L3 interconnect are left out.
 
 ## LA664
@@ -53,8 +53,8 @@ memory, and FP/vector pipes.
 The integer cluster has four ALUs. Two can execute branches and two can
 multiply. Memory has four AGUs, two for loads and two for stores, feeding a
 75-entry load queue and a 64-entry store queue. The FP/vector cluster has four
-pipes: all four handle 256-bit packed FP adds, two handle scalar FP adds, and
-the core can start two FMAs per cycle.
+pipes: all four handle 256-bit packed FP adds, and the core can start two FMAs
+per cycle.
 
 The L1D is 64 KB and 4-way. Its load-to-use latency is 3 cycles for a pointer
 chase and 4 cycles for other dependent integer loads; `fld`, `vld`, and `xvld`
@@ -102,8 +102,9 @@ execution pipes see.
 
 Four ALUs handle the integer work. Only one branch can resolve per cycle, and
 two integer multiplies can start per cycle with a 4-cycle latency. Integer
-divide is 9 cycles. Two AGUs can issue two loads or one load plus one store. The
-vector cluster has two 256-bit pipes. FP add, multiply, and FMA all take 5
+division is data-dependent, up to 38 cycles for 64-bit operands. Two AGUs can
+issue two loads or one load plus one store. The vector cluster has two 256-bit
+pipes. FP add, multiply, and FMA all take 5
 cycles, and the core starts two FMAs per cycle.
 
 Store forwarding takes 7 cycles when the load is fully contained in the store,
@@ -120,8 +121,8 @@ cores. The L1 DTLB has 64 entries, the L2 TLB 2048, and the default page size is
 The diagrams stop at the core boundary. On LA664, SMT is part of the picture:
 the ROB, register files, and load/store queues are statically partitioned
 between the two threads, while the schedulers are watermarked so a thread can
-use what appears to be about 30 entries even when its sibling is active. LA464 has no SMT, so none
-of that applies.
+use what appears to be about 30 entries even when its sibling is active. LA464
+has no SMT, so none of that applies.
 
 Branch prediction is drawn as one box because its internals are largely
 undocumented. The 64-entry L1 BTB and the return stacks are measured; the

@@ -26,8 +26,8 @@ too often.
 
 On LA664 the L1I feeds a 6-wide decoder. The L1 BTB still has 64 entries, but a
 miss appears to fall back to an implicit 1K to 4K entry second level tied to the
-instruction cache rather than to a fully decoupled BTB. The core also seems to prefetch
-linearly. The result is a front end that can sustain about 3 IPC when the code
+instruction cache rather than to a fully decoupled BTB. The core also seems to
+prefetch linearly. The result is a front end that can sustain about 3 IPC when the code
 fits in L2, but drops below 2 IPC when it has to come from L3. The 6-wide decode
 only helps while the instruction stream keeps up.
 
@@ -39,9 +39,9 @@ cache can be indexed before the TLB result is available.
 
 On LA664 the L1D has a 3-cycle load-to-use latency for a pointer chase and 4
 cycles for other dependent integer loads; `fld`, `vld`, and `xvld` take 5 cycles.
-LoongPerf's load-latency measurements agree with that split.
-It can serve two 256-bit accesses per cycle in any mix of loads and stores, which
-is what the four AGUs and the vector pipes need. Store forwarding takes 7 cycles
+LoongPerf's load-latency measurements agree with that split. It can serve two
+256-bit accesses per cycle in any mix of loads and stores, which is what the four
+AGUs and the vector pipes need. Store forwarding takes 7 cycles
 when the load is fully contained in the store and 14 cycles on a partial overlap.
 Store forwarding across a 64-byte line boundary costs 21 cycles, and a
 misaligned store costs 3.
@@ -92,9 +92,9 @@ Pointer chasing gets the 3-cycle case on LA664 and a normal 4-cycle load on
 LA464, but the 5-cycle latency of `fld`/`vld`/`xvld` means vector loops should
 keep their data in registers and avoid reloading the same line.
 
-Instruction footprint matters on both cores because neither has
-an op cache. Hot loops should fit in the 64 KB L1I, and the difference between an
-L2-resident loop and an L3-resident loop is large, especially on LA464. Function
+Instruction footprint matters on both cores because neither has an op cache.
+Hot loops should fit in the 64 KB L1I, and the difference between an L2-resident
+loop and an L3-resident loop is large, especially on LA464. Function
 inlining and loop unrolling both trade instruction cache for fewer branches, so
 they should be measured rather than assumed.
 

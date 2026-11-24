@@ -5,8 +5,9 @@ hide:
 # Introduction
 
 This guide collects optimization information for LoongArch software, with the
-LA664 and LA464 cores as the two primary targets. It starts with microarchitectural background, then gives each mechanism its own
-section; most of those sections end with concrete recommendations.
+LA664 and LA464 cores as the two primary targets. It starts with the
+microarchitectural background, then gives each mechanism its own section; most of
+those sections end with concrete recommendations.
 
 The guide does not try to be a replacement for the LoongArch manuals. It assumes
 that the reader can read LoongArch assembly and knows the base integer and

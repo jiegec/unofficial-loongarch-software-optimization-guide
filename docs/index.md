@@ -63,7 +63,8 @@ the measurement is used, and the disagreement is noted on the page.
 
 ## Acknowledgements
 
-This guide is inspired by AMD's *Software Optimization Guide* series. Thanks to AMD for setting such a good example.
+This guide is inspired by AMD's *Software Optimization Guide* series. Thanks to
+AMD for setting such a good example.
 
 ## Disclaimer
 

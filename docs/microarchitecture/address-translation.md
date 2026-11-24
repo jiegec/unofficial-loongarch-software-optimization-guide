@@ -12,8 +12,9 @@ application code.
 
 The page table lives in memory, and its shape is a build-time choice: Linux
 supports 4 KB, 16 KB, and 64 KB pages, with two, three, or four levels depending
-on the combination. A 64-bit build with 16 KB pages defaults to three levels. The base address comes from two
-CSRs, `PGDL` and `PGDH`, selected by the top bit of the virtual address. On a
+on the combination. A 64-bit build with 16 KB pages defaults to three levels. The base address
+comes from two CSRs, `PGDL` and `PGDH`, selected by the top bit of the virtual
+address. On a
 TLB miss, the hardware walker reads the page table entries itself and fills the
 TLB. If a level is missing or invalid, the core raises a TLB exception (`TLBL`
 for a load, `TLBS` for a store, `TLBM` for a modify) and the kernel handles it.
@@ -28,8 +29,8 @@ touches them directly; the kernel does.
 
 The ASID field is 10 bits. It lets the kernel keep translations for several
 address spaces in the TLB at once, so a context switch does not have to flush the
-whole TLB. A process that shares nothing with the previous one still has to be
-invalidated, but the common case avoids the flush.
+whole TLB. An address space that shares nothing with the previous one still needs its
+entries invalidated, but the common case avoids the flush.
 
 Page sizes are 4 KB, 16 KB, and 64 KB, and `TLBIDX` records the size of each
 entry. The kernel's page size is a build-time choice; on the 3A5000 and 3A6000

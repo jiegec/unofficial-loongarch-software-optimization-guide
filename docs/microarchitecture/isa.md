@@ -20,8 +20,8 @@ The register files overlap: a floating-point register is the low 64 bits of an
 LSX register, and an LSX register is the low 128 bits of the corresponding LASX
 register.
 
-Outside LBT, there is no integer condition-code register and no
-general-purpose flags. Integer branches compare two registers directly; floating-point branches
+Outside LBT, there is no integer condition-code register and no general-purpose
+flags. Integer branches compare two registers directly; floating-point branches
 test an FCC. This removes the x86-style flag dependency, but it also means there is
 no compare-and-branch fusion to exploit: the compare and the branch are already one
 instruction.
@@ -49,12 +49,12 @@ Loads and stores have two main addressing forms:
 
 A third form, `ldptr.w` and `ldptr.d`, is PC-relative and is what the compiler
 uses for globals. There is no scaled-index addressing and no
-base-plus-index-plus-displacement form. A scaled address such as `a[i * 8]` needs a separate shift or an `alsl.d`
-before the load. Branches are PC-relative (`b`, `bl`, `beq`, `bne`, `blt`, …) or
-register-indirect (`jirl`), which is how calls through a pointer and function
-returns work. PC-relative data addresses use `pcalau12i` plus an immediate; large
-constants are built with `lu12i.w` and `ori`, adding `lu32i.d` and `lu52i.d` for
-64-bit values.
+base-plus-index-plus-displacement form. A scaled address such as `a[i * 8]`
+needs a separate shift or an `alsl.d` before the load. Branches are PC-relative
+(`b`, `bl`, `beq`, `bne`, `blt`, …) or register-indirect (`jirl`), which is how
+calls through a pointer and function returns work. PC-relative data addresses
+use `pcalau12i` plus an immediate; large constants are built with `lu12i.w` and
+`ori`, adding `lu32i.d` and `lu52i.d` for 64-bit values.
 
 ## Instruction classes
 
@@ -79,9 +79,9 @@ and `bl` for direct jumps and calls, and `jirl` for register-indirect jumps, cal
 through a pointer, and returns.
 
 Loads and stores use `ld.d`/`st.d` with a base plus immediate offset,
-`ldx.d`/`stx.d` with a base plus index register, or the PC-relative `ldptr.d`. There is
-no scaled index. Atomics require natural alignment; ordinary loads and stores may
-be unaligned on cores that implement the UAL capability (see Alignment). Atomics come in two
+`ldx.d`/`stx.d` with a base plus index register, or the PC-relative `ldptr.d`.
+Atomics require natural alignment; ordinary loads and stores may be unaligned on
+cores that implement the UAL capability (see Alignment). Atomics come in two
 families: the reservation-based `ll.w`/`sc.w` and `ll.d`/`sc.d` pairs, and the
 single-instruction `amadd.d`, `amswap.d`, `amand.d`, `amor.d`, `amxor.d`,
 `ammax.d`, and `ammin.d`.
@@ -137,11 +137,12 @@ raises an alignment exception (ALE), which the kernel either emulates in softwar
 or turns into a signal.
 
 The Loongson-3 processors based on LoongArch, including LA464 and LA664, report
-UAL, so ordinary unaligned accesses work on both cores. Two caveats remain.
-Atomics and `ll`/`sc` require natural alignment, and a misaligned atomic access
-raises ALE. And an unaligned vector access is not guaranteed to be atomic or
-ordered: the vector manual states that the vector load and store instructions do
-not raise alignment exceptions, but also that an unaligned access may be split
+UAL, so ordinary unaligned accesses work on both cores. Two caveats remain. The
+first is that atomics and `ll`/`sc` require natural alignment, and a misaligned
+atomic access raises ALE. The second is that an unaligned vector access is not
+guaranteed to be atomic or ordered: the vector manual states that the vector
+load and store instructions do not raise alignment exceptions, but also that an
+unaligned access may be split
 across the memory system.
 
 Portable code cannot assume UAL. Some LoongArch cores, such as LA264 in the
@@ -150,8 +151,8 @@ the capability at run time or avoid unaligned accesses altogether. Even where UA
 is present, aligned accesses remain preferable: they avoid cache-line and page
 splits, and they keep the atomicity guarantees that unaligned accesses give up.
 
-For source code, the practical rule is unchanged: do not type-pun through a
-narrower pointer. Use `memcpy`, read serialization formats field by field, and
+For source code, the practical rule is unchanged: do not cast a `char *` to a
+wider type. Use `memcpy`, read serialization formats field by field, and
 align vector buffers when laying out data structures.
 
 ## Memory model and address spaces

@@ -22,7 +22,7 @@ the two cores side by side so their structural differences are visible early.
 
 Next come the two sections about memory addressing. Cache hierarchy goes through
 the L1 instruction and data caches, L2, and L3: capacity, associativity, line
-size, ports, replacement policy, and what each of those means for software.
+size, ports, and what each of those means for software.
 Address translation covers the TLBs, page-table walkers, page sizes and huge
 pages, and the cached and uncached address windows that select memory attributes.
 
@@ -33,10 +33,10 @@ picks up where that leaves off: fetch blocks, instruction buffers, decode width
 and restrictions, dispatch and retire, front-end caching, and spin loops.
 
 The execution sections describe what actually runs. Integer execution has the ALU
-and address-generation pipes, multiply and divide, shifts and bit-field
-instructions, conditional selects, and the port restrictions that decide how many
-of them can run at once. Floating-point execution has the FP pipes, FMA, divide
-and square root, conversions, denormals and rounding modes, and the trade-off
+pipes, multiply and divide, shifts and bit-field instructions, conditional
+selects, and the port restrictions that decide how many of them can run at once.
+Floating-point execution has the FP pipes, FMA, divide and square root,
+conversions, denormals and rounding modes, and the trade-off
 between FMA and a separate multiply and add. Vector execution (LSX and LASX)
 goes through the 128-bit and 256-bit resources, mixing vector widths, and
 alignment, and points to the intrinsics guide for instruction-level semantics.

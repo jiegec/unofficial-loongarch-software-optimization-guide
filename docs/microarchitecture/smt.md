@@ -26,10 +26,10 @@ rather than partitioned, so a thread can use what appears to be around 30 of the
 48 entries even when both threads are running. That is a compromise between
 fairness and the ability to keep a single thread's scheduler full.
 
-The branch predictor is shared, including the BTB. The return stack is 16
-entries in single-thread mode and 8 per thread when SMT is active. Code with deep or recursive call chains loses some return prediction when
-a sibling is running, which is one reason call-heavy workloads see smaller SMT
-gains than tight loops.
+The branch predictor is shared, including the BTB. The return stack is 16 entries
+in single-thread mode and 8 per thread when SMT is active. Code with deep or
+recursive call chains loses some return prediction when a sibling is running,
+which is one reason call-heavy workloads see smaller SMT gains than tight loops.
 
 ## What SMT buys
 

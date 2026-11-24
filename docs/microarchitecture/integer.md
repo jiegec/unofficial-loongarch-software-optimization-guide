@@ -28,8 +28,7 @@ much room the schedulers have to find independent work.
 `mul.d` produces the low half of a 64-bit product, `mulh.d` and `mulhu.d` the
 signed and unsigned high halves, with `.w` forms for 32-bit results. The two
 multiply pipes mean the core can start two independent multiplies per cycle.
-LoongPerf measures `mul.d` and `mulh.d` at 4 cycles on both cores, and the two
-multiply pipes mean two independent multiplies can start per cycle.
+LoongPerf measures `mul.d` and `mulh.d` at 4 cycles on both cores.
 
 Division is the slow case. `div.d` and `mod.d` produce quotient and remainder, and
 the operation is iterative, so latency depends on the operand values. LoongPerf
@@ -43,7 +42,7 @@ and the latency is data-dependent, so a single number does not describe it.
 Code that divides by a constant should let the compiler turn it into a multiply
 and a shift. Code that divides inside a loop should be restructured, or replaced
 with a reciprocal estimate and a Newton step when the exact quotient is not
-required. The integer divider is the one execution unit where a small algorithmic
+required. The integer divider is one of the execution units where a small algorithmic
 change usually beats any instruction-level tweak.
 
 ## Bit fields and conditional selects
@@ -52,8 +51,9 @@ LoongArch has a full set of bit-manipulation instructions and they are worth
 using. `bstrins.d` and `bstrpick.d` insert or extract an arbitrary bit field in one
 instruction, `bytepick.d` assembles a value from two registers at byte
 granularity, `revb.2h`, `revb.4h`, `revb.2w`, and `revb.d` reverse byte order,
-`clz.w`/`clz.d` and `ctz.w`/`ctz.d` count leading and trailing zeros, `crc32.w`
-and `crc32.d` accumulate CRC, and `alsl.d` combines a shift with an add. Each of
+`clz.w`/`clz.d` and `ctz.w`/`ctz.d` count leading and trailing zeros,
+`crc.w.b.w` and the wider `crc.w.*` forms accumulate CRC, and `alsl.d` combines a
+shift with an add. Each of
 these replaces a short sequence of shifts, masks, and adds.
 
 Conditional assignment is the other place where instruction selection matters.
@@ -76,8 +76,9 @@ instruction takes a slot.
 
 ## What this means for software
 
-Keep dependency chains short and give the scheduler independent work. The ROB is twice as large on LA664 and
-the scheduler is split into three queues, so a loop that is latency-bound on LA464
+Keep dependency chains short and give the scheduler independent work. The ROB is
+twice as large on LA664 and the scheduler is split into three queues, so a loop
+that is latency-bound on LA464
 may become throughput-bound on LA664, and unrolling that helps one may not help
 the other.
 
@@ -93,7 +94,7 @@ and they often have the same single-cycle latency as a plain ALU operation.
 
 Avoid division in hot loops. If the divisor is a constant, the compiler can
 strength-reduce it. If it is not, consider a reciprocal or a different algorithm.
-The divider's data-dependent latency is the most predictable performance problem
+The divider's data-dependent latency is the most persistent performance problem
 in the integer unit.
 
 ## What to measure

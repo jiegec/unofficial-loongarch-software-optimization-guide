@@ -11,8 +11,9 @@ they see.
 
 LoongArch is weakly ordered. Loads and stores to different addresses may be
 observed out of order by other cores, and a core may reorder its own accesses as
-long as the architecture permits it. The programmer gets ordering only from
-`dbar`, `ibar`, and the atomic operations themselves.
+long as the architecture permits it. The programmer gets ordering from
+`dbar`, `ibar`, and the acquire/release forms of the atomic instructions; a plain
+`am*` is atomic, not ordered.
 
 `dbar` takes a hint that selects which prior and subsequent accesses are ordered.
 The low bits name the four combinations of prior read, prior write, subsequent

@@ -29,8 +29,8 @@ back-to-back taken branches. A branch that misses the BTB has to wait for the
 instruction bytes to arrive and for the target address to be computed. On both
 cores that means waiting for the L1I, so a BTB miss turns into an instruction
 cache latency problem. A mispredicted branch is worse still: everything younger
-than the branch is discarded. Loongson does not publish the misprediction penalty, so it has to be measured
-before it is used in a calculation.
+than the branch is discarded. The public material does not give the misprediction
+penalty, so it has to be measured before it is used in a calculation.
 
 ## LA664
 
@@ -48,9 +48,10 @@ There is room for 1024 indirect targets, and a single indirect branch can track
 well over 128 of them before it starts to mispredict.
 
 The return-address stack holds 16 entries, and only 8 per thread when SMT is
-active. That is smaller than LA464's 32, which is surprising, but the core appears to
-fall back to the indirect predictor when the stack overflows, and the measured
-loss is modest. Deep or recursive call chains still pay more here than on the older core.
+active. That is smaller than LA464's 32, which is surprising, but the core
+appears to fall back to the indirect predictor when the stack overflows, and the
+measured loss is modest. Deep or
+recursive call chains still pay more here than on the older core.
 
 Two of the four integer ALUs can execute branches, and LoongPerf measures
 not-taken branches at two per cycle. The 6-wide front end and the large BTB mean
@@ -66,9 +67,9 @@ latency in cycles, but the core runs at 2.5 GHz, so in time it is expensive, and
 the predictor cannot follow the instruction stream through an L1I miss.
 
 The direction predictor appears to trace back to the GS464E tournament design,
-with local and global history tables and a selector. On long random history it performs
-poorly compared with modern TAGE-style predictors, and Chips and Cheese measured
-it well behind LA664. Indirect prediction is limited too: about 24 targets per
+with local and global history tables and a selector. On long random history it
+performs poorly compared with modern TAGE-style predictors, and Chips and Cheese
+measured it well behind LA664. Indirect prediction is limited too: about 24 targets per
 branch and roughly 512 in total, which is enough for small jump tables and simple
 virtual dispatch but not for a large interpreter.
 

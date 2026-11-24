@@ -4,7 +4,7 @@ The front end turns instruction bytes into macro-ops. It fetches from the L1I,
 decodes, renames, and hands work to the schedulers. LoongArch makes the decode
 part simpler than x86 because every instruction is 32 bits and 4-byte aligned:
 there are no prefixes, no variable-length encodings, and no instruction boundary
-to recover after a mispredicted fetch. What remains is bandwidth, buffer depth,
+to recover after a mispredicted branch. What remains is bandwidth, buffer depth,
 and the cost of missing in the instruction cache.
 
 ## Fetch and decode
@@ -68,8 +68,8 @@ than from the front end. Small hot loops are the natural shape for both cores.
 
 It also makes instruction count a first-order cost. Using one vector instruction
 instead of four scalar ones saves decode slots as well as execution slots, and
-using a fused sequence such as `alsl.d` or `bstrins.d` instead of three
-instructions does the same. Code size on LoongArch is proportional to instruction
+using a single instruction such as `alsl.d` or `bstrins.d` instead of three
+does the same. Code size on LoongArch is proportional to instruction
 count, so the two effects point in the same direction.
 
 ## What this means for software

@@ -106,7 +106,7 @@ shuffles defeats both the load path and the shuffle units.
 ## Mixing LSX, LASX, and scalar FP
 
 The overlapping register files create the only subtle correctness and performance
-issue in vector code. Writing an `$f` register leaves the upper bits of the
+issue in vector code. Writing a scalar FP register leaves the upper bits of the
 corresponding `$v` and `$x` registers alone, and writing a `$v` register leaves
 the upper 128 bits of the `$x` register alone. If the core tracks the upper bits
 as dirty, a later wider read or write may need a merge.
@@ -127,9 +127,9 @@ Use the widest vector that the data allows. LASX is native 256-bit on both cores
 so a 256-bit operation does twice the work of a 128-bit one for the same
 instruction count, and the instruction count is what the front end pays for.
 
-Choose a data layout that avoids extra shuffle instructions. Structure-of-arrays layouts, padded
-rows, and element sizes that match the operation are worth more than any
-instruction-level trick. If a kernel needs a transpose or a wide permutation in
+Choose a data layout that avoids extra shuffle instructions. Structure-of-arrays
+layouts, padded rows, and element sizes that match the operation are worth more
+than any instruction-level trick. If a kernel needs a transpose or a wide permutation in
 the inner loop, consider changing the layout instead.
 
 Use saturating and widening instructions instead of manual clamp or convert
@@ -137,7 +137,7 @@ sequences. They are single instructions and they keep the dependency chain short
 
 Keep reductions out of the inner loop. Accumulate into a vector, then do one
 horizontal step at the end. For FP reductions, several vector accumulators hide
-the FMA latency, and the one-FMA-per-cycle limit still applies.
+the FMA latency, and the two-FMA-per-cycle limit still applies.
 
 ## What to measure
 
