@@ -1,0 +1,115 @@
+# Cache hierarchy
+
+Both cores have the same three-level shape: a private 64 KB L1 instruction cache
+and a private 64 KB L1 data cache, a private 256 KB L2, and a 16 MB L3 shared by
+four cores. The differences are in latency, bandwidth, and how well each level
+feeds the core. The numbers below are cycles at the 2.5 GHz clock both parts run
+at, taken from Chips and Cheese's measurements unless stated otherwise.
+
+## L1 instruction cache
+
+Both cores use a 64 KB, 4-way L1I, twice the 32 KB that contemporary x86 cores
+carry. Neither core has a micro-op cache, so every instruction has to come
+through fetch and decode. That makes instruction-side bandwidth more important
+than it is on cores that can replay decoded operations from an op cache, and it
+makes the size of the L1I more valuable.
+
+On LA464 the L1I feeds a 4-wide front end. Branch targets come from a 64-entry
+BTB; when a branch misses the BTB, the core waits for the line to arrive from the
+L1I and computes the target with the branch address calculator, which costs about
+the L1I latency of 3 cycles. There is no second-level BTB. Fetching from L2 is
+worse than fetching from L3 on this core, which suggests the L2 path has to
+handle instruction cache coherency against the L1D, while an L3 hit can use a
+directory. Whatever the cause, code that spills out of the 64 KB L1I runs at a
+lower instruction rate, and the large L1I is there to keep that from happening
+too often.
+
+On LA664 the L1I feeds a 6-wide decoder. The L1 BTB still has 64 entries, but a
+miss appears to fall back to an implicit 1K to 4K entry second level tied to the
+instruction cache rather than to a fully decoupled BTB. The core also seems to prefetch
+linearly. The result is a front end that can sustain about 3 IPC when the code
+fits in L2, but drops below 2 IPC when it has to come from L3. The 6-wide decode
+only helps while the instruction stream keeps up.
+
+## L1 data cache
+
+Both L1Ds are 64 KB and 4-way, write-back, and virtually indexed but physically
+tagged. With 4 ways, the set index fits inside the 16 KB page offset, so the
+cache can be indexed before the TLB result is available.
+
+On LA664 the L1D has a 3-cycle load-to-use latency for a pointer chase and 4
+cycles for other dependent integer loads; `fld`, `vld`, and `xvld` take 5 cycles.
+It can serve two 256-bit accesses per cycle in any mix of loads and stores, which
+is what the four AGUs and the vector pipes need. Store forwarding takes 7 cycles
+when the load is fully contained in the store and 14 cycles on a partial overlap.
+Store forwarding across a 64-byte line boundary costs 21 cycles, and a
+misaligned store costs 3.
+
+On LA464 the L1D takes 4 cycles for integer loads and 5 for `fld`, `vld`, and
+`xvld`. It can serve two 256-bit loads per cycle, or one load and one store. Store
+forwarding is 7 cycles for a contained load and 14 for a partial overlap, but the
+overlap check is coarse: accesses that hit the same 8-byte block are serialized
+even when they do not really overlap, and the same false dependency appears
+across 16 KB pages at the same offset. A misaligned load costs 2 cycles, a
+misaligned store 10, and a misaligned store that crosses a 16 KB page 15.
+
+## L2
+
+Both cores have a private 256 KB L2. It is the level that decides whether a
+working set that does not fit in L1 still runs at a useful speed.
+
+LA464's L2 is 16-way, acts as a victim cache for the L1D, and has a 14-cycle
+latency. Its bandwidth is about 21.3 bytes per cycle. The instruction side is the
+weak point: fetching code from L2 is slower than fetching it from L3, which is
+unusual and suggests the L2 path is paying for coherency work.
+
+LA664 keeps the 256 KB size but cuts the latency to 12 cycles and brings
+instruction fetch from L2 up to about 3 IPC. Data bandwidth is in the same range
+as LA464, around 21 to 22 bytes per cycle. The smaller latency matters more than
+the size here, because 256 KB is not large enough to hold much of a working set
+on its own.
+
+## L3
+
+The L3 is 16 MB, shared by the four cores of a cluster, and on LA464 it is a
+victim cache built from four banks behind a switch. Its latency is about 40
+cycles on LA464, and LA664 brings that down by a couple of cycles. Bandwidth is
+where the newer core gains more: LA464 gives a single core about 13.7 bytes per
+cycle and just over 10 when all four cores are active, while LA664 gives a single
+core 18.7 and still 16.55 with every thread loaded. The all-core number matters
+because the L3 is shared, and it was a weak point on LA464.
+
+An L3 miss goes to DRAM. Measured latency is about 144 ns on 3A5000 and 104 ns on
+3A6000. Both parts run at 2.5 GHz, so the cycle counts behind those numbers are
+roughly 360 and 260. The 3A5000 memory controller was a known weak point; the
+3A6000 improves it but does not make DRAM latency low.
+
+## What this means for software
+
+The hierarchy rewards code that fits in L1 or L2 and punishes large working sets.
+Pointer chasing gets the 3-cycle case on LA664 and a normal 4-cycle load on
+LA464, but the 5-cycle latency of `fld`/`vld`/`xvld` means vector loops should
+keep their data in registers and avoid reloading the same line.
+
+Instruction footprint matters on both cores because neither has
+an op cache. Hot loops should fit in the 64 KB L1I, and the difference between an
+L2-resident loop and an L3-resident loop is large, especially on LA464. Function
+inlining and loop unrolling both trade instruction cache for fewer branches, so
+they should be measured rather than assumed.
+
+The L2 is small on both cores, and the L3 is shared by four cores. A single
+thread can use most of the 16 MB L3, but four active threads each get much less
+effective capacity, and the bandwidth per core drops with them. Workloads that
+stream through memory should not expect L3 to absorb the stream.
+
+## Sources
+
+The cache sizes, latencies, and bandwidth numbers come from Chips and Cheese:
+
+- [Loongson 3A6000: A Star among Chinese CPUs](https://chipsandcheese.com/p/loongson-3a6000-a-star-among-chinese-cpus)
+- [Loongson's 3A5000: China's Best Shot?](https://chipsandcheese.com/p/loongsons-3a5000-chinas-best-shot)
+
+Per-instruction latency and throughput live in
+[Instruction latency and throughput](../latency-throughput.md). Cache behavior
+under specific access patterns is better measured than guessed; treat the numbers
+above as a starting point.
