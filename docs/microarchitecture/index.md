@@ -52,8 +52,9 @@ threads and which resources are shared, and why LA464 has no SMT. Atomics and
 memory ordering covers the LL/SC and `am*` instructions, `dbar` and `ibar`, and
 the locking idioms that follow from the memory model.
 
-LA664 is the newer core: it supports SMT, and its out-of-order and execution
-resources are larger than LA464's. LA464 is the older baseline, and code that must
-run on both has to treat it as the reference. Sections call out the differences
+LA664 is the newer core: it implements LoongArch V1.1, supports SMT, and its
+out-of-order and execution resources are larger than LA464's. LA464 is the older
+baseline and implements V1.0 only, so code that must run on both has to treat it as
+the reference. Sections call out the differences
 where they change what software should do, and say so explicitly when the two
 cores behave the same.

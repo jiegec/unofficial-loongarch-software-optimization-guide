@@ -34,8 +34,8 @@ The guide covers two cores and the products that use them:
 
 | Core | Products (non-exhaustive) | Notes |
 | --- | --- | --- |
-| LA664 | Loongson-3A6000, 3C6000 | Out-of-order, SMT-capable |
-| LA464 | Loongson-3A5000, 3C5000 | Out-of-order, single-thread |
+| LA664 | Loongson-3A6000, 3C6000 | Out-of-order, SMT-capable, LoongArch V1.1 |
+| LA464 | Loongson-3A5000, 3C5000 | Out-of-order, single-thread, LoongArch V1.0 |
 
 Out of scope for now: LA264/LA364E (2K1000LA, 2K2000, 2K3000), LA32/LA32R, the
 GS464/GS464E predecessors of LA464, and Loongson's accelerator or GPU units. Some
