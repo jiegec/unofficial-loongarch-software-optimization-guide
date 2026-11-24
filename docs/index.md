@@ -28,7 +28,7 @@ not a straitjacket.
 
 ## Sources
 
-The guide draws on four sets of material.
+The guide draws on five sets of material.
 
 **Chips and Cheese** publishes the microbenchmark articles behind most of the
 core-level numbers:
@@ -57,6 +57,10 @@ instructions at intrinsic level:
 
 - [Guide](https://jia.je/unofficial-loongarch-intrinsics-guide/)
 - [LBT Basics](https://jia.je/unofficial-loongarch-intrinsics-guide/lbt_basics/)
+
+**Core-to-core latency** measurements come from
+[nviennot/core-to-core-latency](https://github.com/nviennot/core-to-core-latency);
+the raw matrices are linked from [the core-to-core page](microarchitecture/core-to-core.md).
 
 Where a core-level description and an instruction-level measurement disagree,
 the measurement is used, and the disagreement is noted on the page.

@@ -50,9 +50,11 @@ prefetching covers the hardware prefetchers and the `preld` software prefetch,
 including prefetch distance and cache-pollution trade-offs.
 
 Finally, simultaneous multithreading explains how LA664 shares a core between two
-threads, which resources are shared, and why LA464 has no SMT. Atomics and memory
-ordering finishes the chapter with LL/SC and `am*`, `dbar` and `ibar`, and the
-locking idioms that follow from the memory model.
+threads, which resources are shared, and why LA464 has no SMT. Core-to-core
+latency then shows what a cache-line transfer costs between cores on the 3C5000
+and 3C6000/S. Atomics and memory ordering finishes the chapter with LL/SC and
+`am*`, `dbar` and `ibar`, and the locking idioms that follow from the memory
+model.
 
 LA664 is the newer core: it implements LoongArch V1.1, supports SMT, and its
 out-of-order and execution resources are larger than LA464's. LA464 is the older

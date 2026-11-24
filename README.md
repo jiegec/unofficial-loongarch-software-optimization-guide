@@ -3,7 +3,7 @@
 An unofficial software optimization guide for the LoongArch architecture. It
 targets two out-of-order cores:
 
-- **LA664** — Loongson-3A6000 and 3C6000 families;
+- **LA664** — Loongson-3A6000 and 3C6000/S;
 - **LA464** — Loongson-3A5000 and 3C5000 families.
 
 ## Disclaimer

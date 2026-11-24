@@ -33,6 +33,7 @@ nav:
       - Load-store unit: microarchitecture/load-store.md
       - Data prefetching: microarchitecture/prefetch.md
       - Simultaneous multithreading: microarchitecture/smt.md
+      - Core-to-core latency: microarchitecture/core-to-core.md
       - Atomics and memory ordering: microarchitecture/atomics.md
   - Instruction latency and throughput: latency-throughput.md
 

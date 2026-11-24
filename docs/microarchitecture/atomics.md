@@ -144,3 +144,5 @@ contention, and the cost of each `dbar` hint.
 Cross-core latency is worth measuring separately. The L3 is shared and the
 coherence protocol is the same for atomics and ordinary lines, so a value bounced
 between two cores has a cost that shows up in every contended operation.
+Measurements for the 3C5000 and 3C6000/S are on the
+[core-to-core latency](core-to-core.md) page.
