@@ -1,4 +1,8 @@
-# Microarchitecture
+---
+hide:
+  - toc
+---
+# Microarchitecture overview
 
 This chapter is the processor model that the rest of the guide refers to. It
 walks through the core from the structures that feed it to the structures that
