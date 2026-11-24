@@ -15,10 +15,10 @@ diagonal is omitted. The raw matrices are in
 | Part | Logical CPUs | Min | Median | Max |
 | --- | --- | --- | --- | --- |
 | 3C5000 | 16 | 29.2 | 43.8 | 55.5 |
-| 3C6000/S | 32 | 20.1 | 29.3 | 36.9 |
+| 3C6000/S | 32 | 7.4 | 32.0 | 57.0 |
 
-All values are nanoseconds. For the 3C6000/S, the table includes SMT sibling
-pairs; excluding them changes the median only slightly, to 29.5 ns.
+All values are nanoseconds. The 3C6000/S table includes SMT sibling pairs;
+excluding the 16 sibling pairs gives a cross-core median of 32.2 ns.
 
 ## 3C5000
 
@@ -38,24 +38,22 @@ can cost twice as much depending on which core pair is involved.
 
 [![Core-to-core latency matrix for the 3C6000/S](../assets/images/core-to-core-3c6000s.png)](../assets/images/core-to-core-3c6000s.png)
 
-The newer part exposes 32 logical CPUs and spans 20 to 37 ns, with a median of
-29 ns. It is both faster and more uniform than the 3C5000: the median is about a
-third lower, and the worst pair is below the 3C5000 median. The 32 by 32 grid is
-dense, so open the image at full size to read the values cell by cell.
+The physical machine exposes 32 logical CPUs and spans 7 to 57 ns, with a
+median of 32 ns. The low end, around 7.4 ns, is SMT sibling traffic, not
+core-to-core communication. The rest of the matrix runs from about 20 to 57 ns.
+This 5000-iteration run is much tighter than the previous physical run, which
+spanned 7 to 112 ns with a median of 42 ns.
 
-The matrix is not flat: logical CPUs 14 to 15 and 26 to 31 are the fastest to
-reach, while 0 to 1 are the slowest, and the four 8-thread blocks have distinct
-latency levels. All 32 logical CPUs are 16 cores on one die, in the same NUMA
-node, and they share 32 MB of L3, so the blocks are not NUMA or L3 partition
-boundaries. The CSV is a core-by-core matrix, but it does not say which cores
-share a cluster, so the page describes the blocks without naming one.
+The matrix is not uniform, and the 32 by 32 grid is dense, so open the image at
+full size to read the values cell by cell. The CSV is a core-by-core matrix, but
+it does not say which cores share a cluster or a NUMA node, so the page does not
+assign the high-latency pairs to a particular hardware boundary.
 
-The 3C6000/S has SMT, so its 32 logical CPUs are 16 cores with two threads each:
-0 and 1 are siblings, 2 and 3 are siblings, and so on. The 16 sibling pairs all
-measure 20.8 to 21.4 ns, and they are same-core transfers rather than
-core-to-core hops. Excluding them, the median is 29.5 ns. Most cross-core pairs
-are 23 to 37 ns, but a small group also reaches 20 to 22 ns, so a low cell is
-not by itself proof of SMT.
+The 3C6000/S has SMT: 0 and 1 are siblings, 2 and 3 are siblings, and so on.
+Most of the 16 sibling pairs measure 7.4 to 7.6 ns, but 0-1, 4-5, and 6-7
+measure 20 to 39 ns. Those three look like measurement outliers rather than a
+different sibling mapping. Excluding all sibling pairs, the cross-core median
+is 32.2 ns.
 
 ## What this means for software
 
