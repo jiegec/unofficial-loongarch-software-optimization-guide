@@ -40,14 +40,17 @@ for small allocations.
 
 ## TLB hierarchy
 
-The TLB is per core. On LA464 it is split into a 64-entry L1 DTLB backed by a
-2048-entry L2 TLB, which with 16 KB pages covers 1 MB and 32 MB respectively. A
-hit in the L2 TLB costs about 5 to 6 cycles more than a hit in the L1 DTLB. For a
+The TLB is per core. Both cores have a 64-entry L1 instruction TLB. On LA464
+the data side is split into a 64-entry, fully associative L1 DTLB backed by a
+2048-entry, 8-way L2 TLB, which with 16 KB pages covers 1 MB and 32 MB
+respectively. A hit in the L2 TLB costs about 5 to 6 cycles more than a hit in
+the L1 DTLB. For a
 pointer chase that misses the L1 DTLB but hits the L2, that is comparable to an
 L1D miss, and it adds up over a large working set.
 
-LA664 keeps a 64-entry L1 DTLB. The L2 TLB size is not public, so the coverage
-above should be treated as LA464-specific. What is clear is that the page size
+LA664 also keeps a 64-entry L1 DTLB. Its L2 TLB shows a 1024-page knee in a
+pointer chase, consistent with the same 2048 entries as LA464, although the
+associativity is not public. What is clear is that the page size
 and the TLB entry counts are the numbers that decide whether a workload is
 TLB-bound, and a 32 MB cover on LA464 is not much for a large heap or a sparse
 matrix.

@@ -11,14 +11,14 @@ controller, and the L3 interconnect are left out.
 ```mermaid
 %%{init: {"theme":"base","flowchart":{"curve":"basis","nodeSpacing":35,"rankSpacing":45},"themeVariables":{"fontFamily":"Inter, Helvetica, Arial, sans-serif","fontSize":"13px","lineColor":"#8aa0b8","primaryTextColor":"#1f2937"}}}%%
 flowchart TB
-  FE("Front end<br/>64 KB L1I · 6-wide<br/>64 BTB · 16 RAS")
+  FE("Front end<br/>64 KB L1I · 8-wide fetch<br/>96 BTB · 16 RAS")
   REN("Rename<br/>6-wide")
   ROB("ROB 256<br/>192 + 192 regs")
   SCH("Schedulers<br/>3 × 48 entries")
   ALU("4 × ALU<br/>2 mul · 2 branch")
   AGU("4 × AGU<br/>2 load · 2 store")
   FPV("4 × FP / vector<br/>2 FMA per cycle")
-  LSU("LSU<br/>75 load · 64 store")
+  LSU("LSU<br/>80 load · 64 store")
   MEM("L1D 64 KB · 3c/4c<br/>L2 256 KB · 12c<br/>L3 16 MB shared")
 
   FE --> REN --> ROB --> SCH
@@ -38,28 +38,28 @@ flowchart TB
   class LSU,MEM mem
 ```
 
-LA664 is a 6-wide out-of-order core. The front end fetches from a 64 KB, 4-way
-L1I through a 6-wide decoder, steered by a 64-entry L1 BTB, a 16-entry return
-stack (8 entries per thread when SMT is active), and an indirect target array
-that holds 1024 targets. There is no micro-op cache. A BTB miss appears to
-fall back to the instruction cache and the branch address calculator rather than
-to a second BTB level, which is why the 64 KB L1I matters more than it does on
-cores with a large decoupled BTB.
+LA664 is a 6-wide out-of-order core. It fetches up to 8 instructions per cycle
+and decodes 6 from a 64 KB, 4-way L1I. Branch targets come from a 96-entry,
+fully associative BTB and a 16-entry return stack (8 entries per thread when SMT
+is active). There is no micro-op cache and no second-level BTB: a BTB miss falls
+back to fetch and decode from the L1I, which is why the 64 KB L1I matters more
+than it does on cores with a large decoupled BTB.
 
 Rename is 6-wide. The ROB holds 256 entries, backed by 192 integer and 192
 vector physical registers. Three schedulers of 48 entries each feed the integer,
 memory, and FP/vector pipes.
 
 The integer cluster has four ALUs. Two can execute branches and two can
-multiply. Memory has four AGUs, two for loads and two for stores, feeding a
-75-entry load queue and a 64-entry store queue. The FP/vector cluster has four
+multiply. Memory has four AGUs, two for loads and two for stores, feeding an
+80-entry load queue and a 64-entry store queue. The FP/vector cluster has four
 pipes: all four handle 256-bit packed FP adds, and the core can start two FMAs
 per cycle.
 
 The L1D is 64 KB and 4-way. Its load-to-use latency is 3 cycles for a pointer
 chase and 4 cycles for other dependent integer loads; `fld`, `vld`, and `xvld`
-take 5 cycles. It can serve two 256-bit accesses per cycle in any mix of loads
-and stores. L2 is 256 KB with a 12-cycle
+take 5 cycles. It can serve two 256-bit loads, two 256-bit stores, or one
+256-bit load plus one 256-bit store per cycle; with 128-bit accesses it can also
+do two loads and two stores in the same cycle. L2 is 256 KB with a 12-cycle
 latency. L3 is 16 MB, shared by the four cores of a cluster.
 
 ## LA464
@@ -67,10 +67,10 @@ latency. L3 is 16 MB, shared by the four cores of a cluster.
 ```mermaid
 %%{init: {"theme":"base","flowchart":{"curve":"basis","nodeSpacing":35,"rankSpacing":45},"themeVariables":{"fontFamily":"Inter, Helvetica, Arial, sans-serif","fontSize":"13px","lineColor":"#8aa0b8","primaryTextColor":"#1f2937"}}}%%
 flowchart TB
-  FE("Front end<br/>64 KB L1I · 4-wide decode<br/>64 BTB · 32 RAS")
+  FE("Front end<br/>64 KB L1I · 8-wide fetch<br/>96 BTB · 32 RAS")
   REN("Rename")
   ROB("ROB 128")
-  SCH("Scheduler<br/>unified")
+  SCH("Scheduler<br/>3 × 32 entries")
   ALU("4 × ALU<br/>1 branch · 2 mul")
   AGU("2 × AGU<br/>2 memory ops")
   FPV("2 × vector<br/>5-cycle FP")
@@ -95,9 +95,9 @@ flowchart TB
 ```
 
 LA464 is a 4-wide core with a 128-entry ROB and no SMT. Its 64 KB, 4-way L1I
-feeds a 4-wide front end, with a 64-entry BTB, a 32-entry return stack, and
-roughly 512 indirect targets. The L1I hit latency appears to be 3 cycles. The renamer
-shows no sign of zeroing or move elimination; what you write is what the
+feeds an 8-wide fetch and a 4-wide decode, with a 96-entry fully associative BTB
+and a 32-entry return stack. The L1I hit latency appears to be 3 cycles. The
+renamer shows no sign of zeroing or move elimination; what you write is what the
 execution pipes see.
 
 Four ALUs handle the integer work. Only one branch can resolve per cycle, and
@@ -125,7 +125,7 @@ use what appears to be about 30 entries even when its sibling is active. LA464
 has no SMT, so none of that applies.
 
 Branch prediction is drawn as one box because its internals are largely
-undocumented. The 64-entry L1 BTB and the return stacks are measured; the
+undocumented. The 96-entry L1 BTB and the return stacks are measured; the
 direction predictor's structure is not public, and the numbers in the diagram
 are the observable capacities, not the vendor's specification.
 

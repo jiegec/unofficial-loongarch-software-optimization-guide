@@ -34,18 +34,16 @@ penalty, so it has to be measured before it is used in a calculation.
 
 ## LA664
 
-LA664 has a 64-entry L1 BTB that can sustain taken branches back to back. When a
-branch misses that BTB, the core appears to fall back to the instruction cache
-and the branch address calculator rather than to a big decoupled BTB; the
-effective second level is a 1K to 4K entry structure tied to the 64 KB L1I. That
-makes the L1I size part of the branch predictor, and it means code that stays in
-L1I also keeps its branch targets cheap.
+LA664 has a 96-entry, fully associative BTB that can sustain taken branches back
+to back. When a branch misses it, the core falls back to fetch and decode from
+the L1I rather than to a second-level BTB. That makes the L1I size part of the
+branch predictor, and it means code that stays in L1I also keeps its branch
+targets cheap.
 
 The direction predictor is a large step up from LA464. Chips and Cheese measured
 accuracy roughly at Zen 2 level: well ahead of the older core and close to recent
-x86 cores, though still behind Zen 3 and later. The structure is not public.
-There is room for 1024 indirect targets, and a single indirect branch can track
-well over 128 of them before it starts to mispredict.
+x86 cores, though still behind Zen 3 and later. The structure is not public, and
+the indirect-target capacity is not documented either.
 
 The return-address stack holds 16 entries, and only 8 per thread when SMT is
 active. That is smaller than LA464's 32, which is surprising, but the core
@@ -60,25 +58,25 @@ other than branch throughput.
 
 ## LA464
 
-LA464 also has a 64-entry BTB, but no second-level BTB and no large target array
-behind it. A branch that misses the BTB waits for the line to come from the 64 KB
-L1I (about 3 cycles) and for the target to be calculated. That is not a large
-latency in cycles, but the core runs at 2.5 GHz, so in time it is expensive, and
-the predictor cannot follow the instruction stream through an L1I miss.
+LA464 also has a 96-entry, fully associative BTB, but no second-level BTB. A
+branch that misses it is discovered only after fetch and decode. In a sweep of
+taken branches, CPI stays at 1 up to 96 branches and then rises to 3; a second
+knee at 16384 branches marks the 64 KB L1I limit. Chips and Cheese reported 64
+entries, probably because it sampled only powers of two.
 
 The direction predictor appears to trace back to the GS464E tournament design,
 with local and global history tables and a selector. On long random history it
 performs poorly compared with modern TAGE-style predictors, and Chips and Cheese
-measured it well behind LA664. Indirect prediction is limited too: about 24 targets per
-branch and roughly 512 in total, which is enough for small jump tables and simple
-virtual dispatch but not for a large interpreter.
+measured it well behind LA664. The indirect-target capacity is not documented, so
+treat jump-table and virtual-dispatch behavior as something to measure rather
+than assume.
 
 The return-address stack has 32 entries, twice LA664's. Only one branch can
 resolve per cycle, and the 4-wide front end gives the core less room to recover
 from a misprediction. LoongPerf's branch measurements show the same limit: a
 not-taken branch retires at one per cycle. A taken branch that fits in the BTB
 also costs one cycle, but when the test used 960 static branch sites, far beyond
-the 64-entry BTB, the cost rose to three cycles per branch. That is the BTB
+the 96-entry BTB, the cost rose to three cycles per branch. That is the BTB
 capacity limit showing up directly in throughput.
 
 ## Making branches predictable
@@ -122,9 +120,8 @@ the taken path next to its branch and move cold code out of the way. Manual
 alignment of hot loops can help, but padding has a cost in instruction footprint,
 and an over-aligned loop can push itself out of L1I.
 
-The L1 BTB is only 64 entries on both cores, though LA664's implicit second level
-makes the L1I footprint more forgiving. Code with hundreds of distinct branches
-in a hot region will thrash the L1 BTB on either core. Keeping the hot branch
+The L1 BTB is 96 fully associative entries on both cores. Code with hundreds of
+distinct branches in a hot region will thrash it on either core. Keeping the hot branch
 footprint small, rather than the whole binary small, is what matters.
 
 Unrolling reduces the number of branches per iteration, but it also grows the
