@@ -12,13 +12,14 @@ and the cost of missing in the instruction cache.
 Both cores have a 64 KB, 4-way L1I. That is twice the 32 KB that contemporary x86
 cores carry, and it is there for a reason: neither core has a micro-op cache, so
 every instruction has to be fetched and decoded every time it executes. There is
-no replay of decoded operations, so decode width is a hard ceiling.
+no replay of decoded operations, so decode width is a hard ceiling. Both cores
+fetch up to 8 instructions per cycle.
 
 LA664 decodes 6 instructions per cycle. With the instruction stream coming from
 L2 it can sustain about 3 IPC, which is a large improvement over LA464. From L3
 it drops below 2 IPC, so a code footprint that spills out of L2 still costs
 throughput. The front end also appears to prefetch linearly, which helps
-sequential code but does not replace a second-level BTB when branches are
+sequential code but does not replace a large BTB when branches are
 unpredictable.
 
 LA464 decodes 4 instructions per cycle. Fetching code from L2 is slower than
@@ -27,8 +28,7 @@ doing instruction-cache coherency work that the L3 path can avoid. The practical
 effect is that code outside the 64 KB L1I runs at a lower instruction rate, and
 the large L1I is what keeps the common case fast.
 
-Public material does not give the fetch block size or instruction buffer depth
-for either core. What is observable is the throughput: LA664 holds roughly 3 IPC
+The fetch width is 8, but the instruction buffer depth is not public. What is observable is the throughput: LA664 holds roughly 3 IPC
 while the code fits in L2, and LA464's instruction bandwidth from L2 is its weak
 point, so it does not sustain the same rate.
 
@@ -44,8 +44,8 @@ and FP/vector pipes.
 
 LA464 renames 4 instructions per cycle into a 128-entry ROB. Its renamer has no
 zeroing or move elimination; every instruction that reaches rename goes on to
-occupy an execution slot. The scheduler is a single unified queue rather than
-three separate ones.
+occupy an execution slot. After rename, three 32-entry queues hold memory,
+integer, and vector work.
 
 The zeroing case is easy to see in compiler output. A zeroing instruction such
 as `or rD, $r0, $r0` does not consume an ALU slot on LA664. On LA464 the same

@@ -28,7 +28,7 @@ not a straitjacket.
 
 ## Sources
 
-The guide draws on five sets of material.
+The guide draws on six sets of material.
 
 **Chips and Cheese** publishes the microbenchmark articles behind most of the
 core-level numbers:
@@ -36,13 +36,18 @@ core-level numbers:
 - [Loongson 3A6000: A Star among Chinese CPUs](https://chipsandcheese.com/p/loongson-3a6000-a-star-among-chinese-cpus)
 - [Loongson's 3A5000: China's Best Shot?](https://chipsandcheese.com/p/loongsons-3a5000-chinas-best-shot)
 
+**Microarchitecture measurements** for LA464 and LA664 are in the
+[LA464 notes](https://github.com/jiegec/blog-source/blob/master/docs/blog/posts/hardware/loongson-la464.md)
+and [LA664 notes](https://github.com/jiegec/blog-source/blob/master/docs/blog/posts/hardware/loongson-la664.md).
+They supply the fetch width, BTB, queue, TLB, and forwarding numbers used above.
+
 **Official documentation** covers the architecture and the products:
 
 - [LoongArch Documentation](https://loongson.github.io/LoongArch-Documentation/),
   which hosts the LoongArch Reference Manual: volume 1 (basic architecture),
   volume 2 (vector extensions), and volume 3 (virtualization and binary
   translation extensions).
-- Loongson 3A5000 and 3A6000 product documentation.
+- Loongson 3A5000/3A6000 and 3C5000/3C6000 product documentation.
 - The Linux kernel's LoongArch port, for privileged details and barrier
   encodings that the manuals leave to the operating system.
 

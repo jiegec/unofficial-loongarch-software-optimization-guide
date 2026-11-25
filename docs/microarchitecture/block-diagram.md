@@ -2,8 +2,10 @@
 
 The diagrams below show the two cores at the same level of detail: front end,
 rename, out-of-order window, schedulers, execution pipes, and the memory path.
-The numbers come from the microbenchmark work published by Chips and Cheese and
-LoongPerf, and they describe the core rather than the package. Clock speed, the memory
+The numbers come from Chips and Cheese, LoongPerf, and the LA464/LA664
+microarchitecture measurements, and they describe the core rather than the
+package. The diagrams use the 4-core 3A6000 and 3A5000 packages; the server parts
+put the same cores around a 32 MB L3. Clock speed, the memory
 controller, and the L3 interconnect are left out.
 
 ## LA664

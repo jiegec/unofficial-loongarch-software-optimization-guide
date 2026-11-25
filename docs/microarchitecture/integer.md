@@ -16,8 +16,8 @@ integer work in flight.
 
 LA464 also has four ALUs, a big step up from the two ALUs of the GS464E it
 evolved from. Only one branch can resolve per cycle, and two ALUs can multiply.
-Rename is 4-wide and the ROB holds 128 entries. All of the integer pipes share a
-single unified scheduler rather than the three separate queues on LA664.
+Rename is 4-wide and the ROB holds 128 entries. Three 32-entry queues hold
+memory, integer, and vector work, rather than the three 48-entry queues on LA664.
 
 Simple operations such as `add.d`, `and`, `or`, `xor`, `slt`, and the shifts are
 single-cycle on both cores. What differs is how many can start per cycle and how

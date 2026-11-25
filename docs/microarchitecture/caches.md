@@ -6,7 +6,8 @@ and a private 64 KB L1 data cache, a private 256 KB L2, and a shared L3. On the
 shared by four cores; the server parts package the same cores with a different
 L3 topology, described in the L3 section. The differences are in latency,
 bandwidth, and how well each level feeds the core. The numbers below are cycles at the 2.5 GHz clock both parts run
-at, taken from Chips and Cheese's measurements unless stated otherwise.
+at, taken from Chips and Cheese and the LA464/LA664 measurements unless stated
+otherwise.
 
 ## L1 instruction cache
 
@@ -16,20 +17,20 @@ through fetch and decode. That makes instruction-side bandwidth more important
 than it is on cores that can replay decoded operations from an op cache, and it
 makes the size of the L1I more valuable.
 
-On LA464 the L1I feeds a 4-wide front end. Branch targets come from a 64-entry
-BTB; when a branch misses the BTB, the core waits for the line to arrive from the
-L1I and computes the target with the branch address calculator, which costs about
-the L1I latency of 3 cycles. There is no second-level BTB. Fetching from L2 is
+On LA464 the L1I feeds an 8-wide fetch and a 4-wide decode. Branch targets come
+from a 96-entry, fully associative BTB; when a branch misses it, the core
+discovers the branch only after fetch and decode. A sweep of taken branches puts
+the cost at 3 CPI beyond 96 branches, with a second knee at 16384 branches where
+the 64 KB L1I is exhausted. There is no second-level BTB. Fetching from L2 is
 worse than fetching from L3 on this core, which suggests the L2 path has to
 handle instruction cache coherency against the L1D, while an L3 hit can use a
 directory. Whatever the cause, code that spills out of the 64 KB L1I runs at a
 lower instruction rate, and the large L1I is there to keep that from happening
 too often.
 
-On LA664 the L1I feeds a 6-wide decoder. The L1 BTB still has 64 entries, but a
-miss appears to fall back to an implicit 1K to 4K entry second level tied to the
-instruction cache rather than to a fully decoupled BTB. The core also seems to
-prefetch linearly. The result is a front end that can sustain about 3 IPC when the code
+On LA664 the L1I feeds an 8-wide fetch and a 6-wide decoder. The BTB has 96
+fully associative entries, and a miss falls back to fetch and decode from the L1I
+rather than to a second-level BTB. The core also seems to prefetch linearly. The result is a front end that can sustain about 3 IPC when the code
 fits in L2, but drops below 2 IPC when it has to come from L3. The 6-wide decode
 only helps while the instruction stream keeps up.
 
@@ -42,10 +43,10 @@ cache can be indexed before the TLB result is available.
 On LA664 the L1D has a 3-cycle load-to-use latency for a pointer chase and 4
 cycles for other dependent integer loads; `fld`, `vld`, and `xvld` take 5 cycles.
 LoongPerf's load-latency measurements agree with that split. It can serve two
-256-bit accesses per cycle in any mix of loads and stores, which is what the four
-AGUs and the vector pipes need. Store forwarding takes 7 cycles
+256-bit loads, two 256-bit stores, or one 256-bit load plus one 256-bit store per
+cycle; 128-bit accesses can go two loads and two stores in the same cycle. Store forwarding takes 7 cycles
 when the load is fully contained in the store and 14 cycles on a partial overlap.
-Store forwarding across a 64-byte line boundary costs 21 cycles, and a
+Store forwarding across a 64-byte line boundary fails and costs 15 cycles, and a
 misaligned store costs 3.
 
 On LA464 the L1D takes 4 cycles for integer loads and 5 for `fld`, `vld`, and
@@ -53,8 +54,9 @@ On LA464 the L1D takes 4 cycles for integer loads and 5 for `fld`, `vld`, and
 forwarding is 7 cycles for a contained load and 14 for a partial overlap, but the
 overlap check is coarse: accesses that hit the same 8-byte block are serialized
 even when they do not really overlap, and the same false dependency appears
-across 16 KB pages at the same offset. A misaligned load costs 2 cycles, a
-misaligned store 10, and a misaligned store that crosses a 16 KB page 15.
+across 16 KB pages at the same offset. A misaligned load costs 2 cycles, a misaligned store 10, and a misaligned store
+that crosses a 16 KB page 15. Forwarding across a 64-byte line boundary fails and
+costs 22 cycles.
 
 ## L2
 

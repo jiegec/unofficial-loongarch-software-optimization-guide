@@ -13,8 +13,9 @@ even starts.
 
 LA664 has four address-generation units: two for loads and two for stores. That
 lets it start two loads and two scalar stores in the same cycle, and it is a
-large improvement over LA464. LA664 can also move two 256-bit vector accesses per
-cycle in any mix of loads and stores.
+large improvement over LA464. Its L1D can serve two 256-bit loads, two 256-bit
+stores, or one load plus one store per cycle; with 128-bit accesses it can also
+do two loads and two stores in the same cycle.
 
 LA464 has two AGUs. Both can be loads, or one can be a load and the other a store,
 which means two memory operations per cycle at best and one store per cycle. That
@@ -36,9 +37,8 @@ the load using an immediate offset, avoids that.
 ## Queues and ordering
 
 The load queue holds loads from dispatch until their data arrives, and the store
-queue holds stores until they can be written to the cache. LA664 has a 75-entry
-load queue and a 64-entry store queue. LA464's queue sizes are not in the public
-material, but they scale with its smaller out-of-order window.
+queue holds stores until they can be written to the cache. LA664 has an 80-entry
+load queue and a 64-entry store queue; LA464 has 64 and 48.
 
 The unit executes loads out of order with respect to older stores. A load whose
 address is known can issue before an older store whose address is not, which is
@@ -59,12 +59,14 @@ The differences are in the corner cases. LA464 checks forwarding at 8-byte
 granularity, so a load and a store that touch the same 8-byte block are
 serialized even when they do not really overlap; the same false dependency
 appears at the same offset in different 16 KB pages. LA664 removes the large
-penalty for a misaligned store, dropping it to 3 cycles, and reduces the penalty
-for forwarding across a 64-byte line boundary from 31 cycles to 21. LA464's
-misaligned store costs 10 cycles, or 15 when it crosses a 16 KB page.
+penalty for a misaligned store, dropping it to 3 cycles. Forwarding across a
+64-byte line boundary fails and costs 15 cycles on LA664, against 22 on LA464.
+LA464's misaligned store costs 10 cycles, or 15 when it crosses a 16 KB page.
 
-The practical rules follow from this. Keep the store and the load that consumes
-it the same size and naturally aligned, and make sure the load is fully contained
+The successful-forwarding rule is strict: the store must cover the load, the
+pair must stay inside one cache line, and one load cannot take data from more
+than one store. The practical rules follow from this. Keep the store and the load
+that consumes it the same size and naturally aligned, and make sure the load is fully contained
 in the store. Avoid interleaving stores to different regions that share the same
 low address bits, because that is what defeats the forwarding check. Group loads
 that follow stores close together, so the scheduler has a chance to forward

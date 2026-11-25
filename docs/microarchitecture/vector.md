@@ -34,9 +34,9 @@ operation into two 128-bit halves. An LASX instruction therefore buys the same
 work as two LSX instructions without doubling the instruction count, and that
 matters on cores without a micro-op cache.
 
-The load/store side keeps up. LA664's L1D can serve two 256-bit accesses per
-cycle in any mix of loads and stores, and LA464 can serve two 256-bit loads or one
-load plus one store. A vector loop that is limited by L1D bandwidth is therefore
+The load/store side keeps up. LA664's L1D can serve two 256-bit loads, two
+256-bit stores, or one load plus one store per cycle, and LA464 can serve two
+256-bit loads or one load plus one store. A vector loop that is limited by L1D bandwidth is therefore
 limited by something other than the vector pipes.
 
 ## Data types and instruction classes

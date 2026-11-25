@@ -8,10 +8,11 @@ the hardware side is much less documented than on x86.
 
 ## Hardware prefetchers
 
-The public material does not describe the data prefetchers in LA464 or LA664.
-Chips and Cheese characterized instruction prefetching, but not the data side, and
-the public documentation does not describe stream or stride detectors. That does not mean
-there are none; it means their behavior has to be measured rather than assumed.
+LA464 has an L2 prefetch engine: a sequential 16-line test shows lines beyond
+the demand line arriving in L2. The public documentation does not describe its
+stream or stride detectors, and the LA664 data prefetcher has not been measured
+here. That does not mean there is none; it means the behavior has to be measured
+rather than assumed.
 
 What is safe to say is that both cores fill a 64-byte line on a miss and that
 sequential, unit-stride access is the pattern any prefetcher is built for. If a
