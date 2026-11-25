@@ -85,14 +85,24 @@ cycle and just over 10 when all four cores are active, while LA664 gives a singl
 core 18.7 and still 16.55 with every thread loaded. The all-core number matters
 because the L3 is shared, and it was a weak point on LA464.
 
-Server parts package the same cores with more L3: the 3C5000 has 32 MB total,
-and the 3C6000/S has 32 MB per die shared by the cores on that die. Both
-core-to-core measurements are within one NUMA node, so the latency bands on the
-[core-to-core latency](core-to-core.md) page are not L3 partitions. `lscpu -C`
-can present a different number of instances or a different total depending on
-how the firmware describes the hierarchy; the capacities here are from Loongson's
-product documentation. The latency and bandwidth numbers above are for the
-4-core desktop parts.
+L3 capacity by part:
+
+| Part | L3 |
+| --- | --- |
+| 3A5000 | 16 MB |
+| 3A6000 | 16 MB |
+| 3C5000 | 32 MB |
+| 3C5000L | 64 MB, four 3A5000 dies |
+| 3C6000/S | 32 MB |
+| 3C6000/D | 64 MB |
+| 3C6000/Q | 128 MB |
+
+The core-to-core measurements are within one NUMA node, so the latency bands on
+the [core-to-core latency](core-to-core.md) page are not L3 partitions.
+`lscpu -C` can present a different number of instances or a different total
+depending on how the firmware describes the hierarchy; the capacities here are
+from Loongson's product documentation. The latency and bandwidth numbers above
+are for the 4-core desktop parts.
 
 An L3 miss goes to DRAM. Measured latency is about 144 ns on 3A5000 and 104 ns on
 3A6000. Both parts run at 2.5 GHz, so the cycle counts behind those numbers are

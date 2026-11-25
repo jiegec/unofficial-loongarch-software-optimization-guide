@@ -5,7 +5,8 @@ rename, out-of-order window, schedulers, execution pipes, and the memory path.
 The numbers come from Chips and Cheese, LoongPerf, and the LA464/LA664
 microarchitecture measurements, and they describe the core rather than the
 package. The diagrams use the 4-core 3A6000 and 3A5000 packages; the server parts
-put the same cores around a 32 MB L3. Clock speed, the memory
+put the same cores around a 32 MB L3 per die; multi-die packages scale to 64
+or 128 MB. Clock speed, the memory
 controller, and the L3 interconnect are left out.
 
 ## LA664
