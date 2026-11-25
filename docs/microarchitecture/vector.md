@@ -121,6 +121,20 @@ hand-written assembly has to do it explicitly. The ABI defines how vector
 arguments and return values are passed, and the compiler inserts the necessary
 merges at function boundaries.
 
+## What the compiler does
+
+Both compilers prefer 256-bit LASX when it is enabled: GCC's vectorizer picks
+`V4DI`/`V8SF` and friends when LASX is enabled, and LLVM's TTI reports a 256-bit vector
+register. GCC's cost model charges a cross-lane permute twice as much for LASX as
+for LSX, and splits a 256-bit reduction into 128-bit halves before the horizontal
+step, because cross-lane traffic is the expensive part. LLVM lowers shuffles
+through `vshuf.b`/`vpermi` as well, but LLVM 24 has no target-specific
+shuffle cost. LLVM caps interleaving at 2, while GCC's vectorizer unroll limit
+is 6 and assumes 4 vector instructions per cycle. The practical rule is the same
+for both: elementwise work wants LASX, cross-lane work wants to stay inside 128
+bits, and manual unrolling beyond what the vectorizer already does mostly costs
+I-cache.
+
 ## What this means for software
 
 Use the widest vector that the data allows. LASX is native 256-bit on both cores,

@@ -28,7 +28,7 @@ not a straitjacket.
 
 ## Sources
 
-The guide draws on six sets of material.
+The guide draws on seven sets of material.
 
 **Chips and Cheese** publishes the microbenchmark articles behind most of the
 core-level numbers:
@@ -40,6 +40,12 @@ core-level numbers:
 [LA464 notes](https://github.com/jiegec/blog-source/blob/master/docs/blog/posts/hardware/loongson-la464.md)
 and [LA664 notes](https://github.com/jiegec/blog-source/blob/master/docs/blog/posts/hardware/loongson-la664.md).
 They supply the fetch width, BTB, queue, TLB, and forwarding numbers used above.
+
+**Compiler back ends**: the GCC
+[`gcc/config/loongarch`](https://github.com/gcc-mirror/gcc/tree/master/gcc/config/loongarch)
+and LLVM
+[`llvm/lib/Target/LoongArch`](https://github.com/llvm/llvm-project/tree/main/llvm/lib/Target/LoongArch)
+trees; the “What the compiler does” notes describe GCC 17 and LLVM 24.
 
 **Official documentation** covers the architecture and the products:
 

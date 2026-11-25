@@ -74,6 +74,21 @@ recognizes zeroing at rename and eliminates it, so `or rD, $r0, $r0` or
 `xor rD, rD, rD` does not occupy an ALU. LA464 has no such optimization, and the
 instruction takes a slot.
 
+## What the compiler does
+
+Both compilers pattern-match the bit-field idioms. LLVM turns `(x >> s) & mask`
+into `bstrpick` and `(x & mask) | (y << s)` into `bstrins`; GCC has equivalent
+`bstrins`/`bstrpick` patterns and peepholes for the same shapes. Both use
+`bytepick` when a value is assembled from bytes of two registers. Writing the
+mask-and-shift form is therefore fine, and a hand-written multi-instruction
+sequence is usually the pessimization.
+
+LLVM also decomposes multiplication by 3, 5, 9, or 17, and by values of the form
+`2^k +/- 1`, into `alsl` or a shift plus add/sub. Those sequences have 1-cycle
+latency, against 4 cycles for `mul`. GCC has the same `alsl` patterns when the
+RTL already contains a shift and add, so a hand-written `mul` for a small
+constant is often the slower choice.
+
 ## What this means for software
 
 Keep dependency chains short and give the scheduler independent work. The ROB is

@@ -112,6 +112,15 @@ test-and-set word, because each waiter spins on a different location. That is a
 general lock-design point, but it matters more here because the core count is
 small and the coherence traffic is concentrated.
 
+## What the compiler does
+
+GCC and LLVM use `amcas` only when the target has LAMCAS, and `sc.q` only with
+SCQ. Compiling with `-march=la664` enables both, plus `-mld-seq-sa`; the explicit
+GCC switches are `-mlamcas`, `-mscq`, and `-mld-seq-sa`. Without them, a CAS
+becomes an LL/SC loop, and that loop keeps the `dbar 0x700` load-load barrier on
+LA664. The V1.1 features are not used just because the binary happens to run on a
+LA664; they have to be enabled at compile time.
+
 ## What this means for software
 
 Prefer the single-instruction `am*` form when it matches the operation. It avoids

@@ -85,6 +85,20 @@ a page also needs two TLB lookups. Those penalties are separate from the
 misalignment penalty and add to it. Aligning buffers, padding rows, and handling
 loop heads and tails separately is the usual way to avoid them.
 
+## What the compiler does
+
+For `p[i]` with element sizes 2, 4, 8, or 16, both compilers try to form `alsl.d`
+with the scale in the immediate and use the result as the load base. For globals,
+`ldptr.w`/`ldptr.d` gives a PC-relative load under the medium code model, and
+`-mrelax` lets the linker collapse `pcalau12i` plus `addi.d`/`ld` sequences
+further.
+
+On LA464 and LA664 the compilers enable unaligned accesses by default through
+UAL, so ordinary C loads and stores can become unaligned `ld`/`st`.
+`-mstrict-align` (GCC) or disabling UAL forces the aligned-safe sequence and is
+only needed for older cores; vector unaligned accesses are still split by the
+hardware.
+
 ## What this means for software
 
 Walk pointers instead of computing scaled indices. A pointer increment plus an

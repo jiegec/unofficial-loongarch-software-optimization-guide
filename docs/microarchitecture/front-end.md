@@ -28,7 +28,7 @@ doing instruction-cache coherency work that the L3 path can avoid. The practical
 effect is that code outside the 64 KB L1I runs at a lower instruction rate, and
 the large L1I is what keeps the common case fast.
 
-The fetch width is 8, but the instruction buffer depth is not public. What is observable is the throughput: LA664 holds roughly 3 IPC
+The instruction buffer depth is not public. What is observable is the throughput: LA664 holds roughly 3 IPC
 while the code fits in L2, and LA464's instruction bandwidth from L2 is its weak
 point, so it does not sustain the same rate.
 
@@ -71,6 +71,18 @@ instead of four scalar ones saves decode slots as well as execution slots, and
 using a single instruction such as `alsl.d` or `bstrins.d` instead of three
 does the same. Code size on LoongArch is proportional to instruction
 count, so the two effects point in the same direction.
+
+## What the compiler does
+
+GCC aligns loops to 8 bytes for LA464 and 16 bytes for LA664, and function
+entries to 32 and 16 bytes respectively. LLVM 24 uses 32-byte
+function and 16-byte loop alignment for both and still carries a TODO for
+LA664-specific layout tuning. GCC 17's DFA pipeline description covers LA464 only,
+so `-mtune=la664` has no dedicated pipeline model. LLVM has separate LA464 and
+LA664 scheduling models; its LA664 model uses six-wide issue, a 256-entry ROB,
+a 4-cycle load latency, and an estimated 14-cycle misprediction penalty. Treat
+GCC's LA664 scheduling as approximate, and treat LLVM's model as more specific
+but still partly estimated.
 
 ## What this means for software
 

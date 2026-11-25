@@ -107,6 +107,18 @@ FCSR also holds the exception flags. Reading it with `movfcsr2gr` is not free,
 and checking flags after every operation defeats the point of a pipelined FPU.
 Check exceptions at the end of a region, not inside the loop.
 
+## What the compiler does
+
+Both compilers lower a floating-point select to `fsel`, sign manipulation to
+`fcopysign`/`fabs`/`fneg`, and the rounding conversions to `frint`/`ftint`. GCC's
+`-march=la664` selects `-mrecip=all` by default, but the estimate sequence is emitted
+only with `-ffast-math` (or `-funsafe-math-optimizations -ffinite-math-only
+-fno-trapping-math`). Division and square root then become `frecipe` or
+`frsqrte` plus one Newton step for single precision and two for double. LLVM's
+estimate hooks use the same instructions when reciprocal math is enabled. Without
+those flags the exact divide remains, so the approximation is not free by
+default.
+
 ## What this means for software
 
 Use vector FP where the data allows it. LA664's four 256-bit pipes are the

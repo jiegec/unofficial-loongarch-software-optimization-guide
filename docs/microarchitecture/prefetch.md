@@ -84,6 +84,15 @@ iterations early may be evicted before it is used, and the prefetch has then
 cost bandwidth for nothing. This is why the distance has to be tuned to the
 working set, not just to the miss latency.
 
+## What the compiler does
+
+GCC enables `-fprefetch-loop-arrays` at `-O3` and models four simultaneous
+prefetches; LLVM's TTI asks for a prefetch distance of 200 iterations and enables write
+prefetching. Both lower `__builtin_prefetch` to `preld 0` for reads and `preld 8`
+for writes; the locality argument is not encoded separately. Check the generated
+`preld` before adding manual prefetches, because `-O3` may already have inserted
+them.
+
 ## What this means for software
 
 Use `__builtin_prefetch` rather than hand-written `preld` unless there is a

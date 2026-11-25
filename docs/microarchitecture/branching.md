@@ -79,6 +79,17 @@ also costs one cycle, but when the test used 960 static branch sites, far beyond
 the 96-entry BTB, the cost rose to three cycles per branch. That is the BTB
 capacity limit showing up directly in throughput.
 
+## What the compiler does
+
+The compilers already choose `beqz`/`bnez` and `bceqz`/`bcnez` when one operand is
+zero, and they if-convert small selects into `slt` plus `maskeqz`/`masknez`, or
+into `fsel` for floating point. A C conditional that selects a value is therefore
+often branchless without intrinsics; only a conditional with side effects or a
+large body becomes a real branch. LLVM's scheduling models for both cores set
+the misprediction penalty to 14 cycles, but they mark it as an estimate. GCC
+uses a generic branch cost of 6 instruction-cost units. Neither number replaces
+a measurement on the actual core.
+
 ## Making branches predictable
 
 The first rule is to give the predictor an easy pattern. Branches that are almost
