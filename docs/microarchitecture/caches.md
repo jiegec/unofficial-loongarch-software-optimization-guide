@@ -26,12 +26,17 @@ worse than fetching from L3 on this core, which suggests the L2 path has to
 handle instruction cache coherency against the L1D, while an L3 hit can use a
 directory. Whatever the cause, code that spills out of the 64 KB L1I runs at a
 lower instruction rate, and the large L1I is there to keep that from happening
-too often.
+too often. A NOP-footprint sweep sees a sharp drop once the loop leaves L1I,
+which suggests there is no instruction prefetcher, or that it does not adapt to
+that pattern.
 
 On LA664 the L1I feeds an 8-wide fetch and a 6-wide decoder. The BTB has 96
 fully associative entries, and a miss falls back to fetch and decode from the L1I
-rather than to a second-level BTB. The core also seems to prefetch linearly. The result is a front end that can sustain about 3 IPC when the code
-fits in L2, but drops below 2 IPC when it has to come from L3. The 6-wide decode
+rather than to a second-level BTB. A NOP-footprint sweep sees a sharp drop once
+the loop leaves L1I, which looks like no instruction prefetcher for that
+pattern; other tests had suggested linear prefetch. The result is a front end
+that can sustain about 3 IPC when the code fits in L2, but drops below 2 IPC
+when it has to come from L3. The 6-wide decode
 only helps while the instruction stream keeps up.
 
 ## L1 data cache
@@ -97,12 +102,31 @@ L3 capacity by part:
 | 3C6000/D | 64 MB |
 | 3C6000/Q | 128 MB |
 
-The core-to-core measurements are within one NUMA node, so the latency bands on
-the [core-to-core latency](core-to-core.md) page are not L3 partitions.
+The server parts also have their own L3 behavior. On the 3C5000 the 32 MB L3 is
+split into four partitions; the latency rises before the full capacity is
+reached, so a core may be closer to some partitions than others. On the
+3C6000/S the measured L3 latency is about 48 cycles, against about 65 on the
+3C5000, and the footprint knee appears only around 96 MB, which is well past the
+32 MB capacity and points at replacement or prefetch behavior rather than raw
+capacity. The core-to-core bands on the
+[core-to-core latency](core-to-core.md) page may therefore reflect L3 partition
+distance on the 3C5000, but the CSV does not label the partitions.
 `lscpu -C` can present a different number of instances or a different total
 depending on how the firmware describes the hierarchy; the capacities here are
-from Loongson's product documentation. The latency and bandwidth numbers above
-are for the 4-core desktop parts.
+from Loongson's product documentation. The latency and bandwidth numbers earlier
+in this section are for the 4-core desktop parts; the server figures are the ones
+in this paragraph and the table.
+
+Measured bandwidth with LASX `xvld`/`xvst`, in bytes per cycle:
+
+| Part | L1 read | L1 write | L2 read | L2 write | L3 read | L3 write |
+| --- | --- | --- | --- | --- | --- | --- |
+| 3C5000 (LA464) | 64 | 32 | 21 | 21 | 12 | 10 |
+| 3C6000/S (LA664) | 64 | 64 | 21 | 21 | 18 | 12 |
+
+The L1 write difference is the clearest sign of the newer core: LA664 can write a
+full 64 bytes per cycle, while LA464 is limited to 32. L2 bandwidth is the same
+on both; the newer core gains at L3, especially on reads.
 
 An L3 miss goes to DRAM. Measured latency is about 144 ns on 3A5000 and 104 ns on
 3A6000. Both parts run at 2.5 GHz, so the cycle counts behind those numbers are
