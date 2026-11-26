@@ -27,9 +27,11 @@ a stride range where the loop is faster than the no-prefetch baseline. The same
 sweep with a large random permutation shows whether prefetching hurts when the
 pattern is unpredictable.
 
-The instruction side has one documented prefetch behavior: LA664 appears to
-prefetch instruction lines linearly. That helps sequential code and does nothing
-for a branchy interpreter, which is one reason the instruction cache footprint
+Instruction prefetch has not been demonstrated. A NOP-footprint sweep sees a
+sharp drop once the loop leaves L1I, which is what the absence of an
+instruction prefetcher would look like. Other tests had suggested some linear
+prefetch, but they do not prove it exists. A branchy interpreter should not rely
+on instruction prefetch, which is one reason the instruction cache footprint
 matters so much. It is not a reason to add data prefetches.
 
 ## Software prefetch: preld
@@ -51,8 +53,10 @@ means a prefetch that does nothing is invisible unless the code is measured.
 
 The useful parameter is distance. A prefetch has to be issued far enough ahead to
 cover the miss latency, but not so far ahead that the line is evicted before use.
-At 2.5 GHz, an L3 hit is about 40 cycles, an L2 hit 12 to 14, and a DRAM access
-about 260 cycles on LA664 and 360 on LA464. If a loop takes 20 cycles per
+At 2.5 GHz, an L3 hit on the 4-core desktop parts is about 40 cycles, an L2 hit
+12 to 14, and a DRAM access about 260 cycles on LA664 and 360 on LA464. The
+server parts are slower: the measured L3 latency is about 48 cycles on the
+3C6000/S and 65 on the 3C5000. If a loop takes 20 cycles per
 iteration, a DRAM-bound load needs to be prefetched roughly 13 to 18 iterations
 ahead. That is the calculation to start from, and then to tune by measurement.
 

@@ -33,8 +33,8 @@ that pattern.
 On LA664 the L1I feeds an 8-wide fetch and a 6-wide decoder. The BTB has 96
 fully associative entries, and a miss falls back to fetch and decode from the L1I
 rather than to a second-level BTB. A NOP-footprint sweep sees a sharp drop once
-the loop leaves L1I, which looks like no instruction prefetcher for that
-pattern; other tests had suggested linear prefetch. The result is a front end
+the loop leaves L1I, which is what the absence of an instruction prefetcher
+would look like; other tests had suggested linear prefetch. The result is a front end
 that can sustain about 3 IPC when the code fits in L2, but drops below 2 IPC
 when it has to come from L3. The 6-wide decode
 only helps while the instruction stream keeps up.

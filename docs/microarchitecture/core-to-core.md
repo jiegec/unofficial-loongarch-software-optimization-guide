@@ -27,9 +27,10 @@ excluding the 16 sibling pairs gives a cross-core median of 26.9 ns.
 The 16 cores span 29 to 56 ns. The matrix is not flat: cores 4 to 7 are
 consistently faster to reach than cores 12 to 15, and the four bands of four
 cores are visible. All 16 cores are in the same NUMA node and share 32 MB of
-L3, so these bands are not NUMA or L3 partition boundaries. Within a band, a
-pair is not faster than a pair across bands, so they are not local clusters
-either; the pattern is closer to a fixed offset per core. The CSV is a core-by-core matrix, but it does not say which
+L3, but the L3 is split into four partitions. The bands may therefore reflect
+partition distance rather than NUMA. Within a band, a pair is not faster than a
+pair across bands, so they are not local clusters either; the pattern is closer
+to a fixed offset per core. The CSV is a core-by-core matrix, but it does not say which
 cores share an L3 group, so the page describes the bands without naming the
 clusters. What matters for software is the spread: a line transfer
 can cost twice as much depending on which core pair is involved.
