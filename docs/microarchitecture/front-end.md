@@ -22,8 +22,8 @@ L2 it can sustain about 3 IPC, which is a large improvement over LA464. From L3
 it drops below 2 IPC, so a code footprint that spills out of L2 still costs
 throughput. A NOP-footprint sweep sees a sharp drop once the loop leaves L1I,
 which is consistent with no instruction prefetcher; other tests had suggested
-linear prefetch. Either way, instruction prefetch does not replace a
-large BTB when branches are unpredictable.
+linear prefetch. Either way, it does not replace a large BTB when branches are
+unpredictable.
 
 LA464 decodes 4 instructions per cycle. Fetching code from L2 is slower than
 fetching it from L3 on this core, which is unusual and suggests the L2 path is

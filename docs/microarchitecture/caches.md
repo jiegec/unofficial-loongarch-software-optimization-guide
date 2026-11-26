@@ -27,8 +27,7 @@ handle instruction cache coherency against the L1D, while an L3 hit can use a
 directory. Whatever the cause, code that spills out of the 64 KB L1I runs at a
 lower instruction rate, and the large L1I is there to keep that from happening
 too often. A NOP-footprint sweep sees a sharp drop once the loop leaves L1I,
-which suggests there is no instruction prefetcher, or that it does not adapt to
-that pattern.
+which is consistent with no instruction prefetcher.
 
 On LA664 the L1I feeds an 8-wide fetch and a 6-wide decoder. The BTB has 96
 fully associative entries, and a miss falls back to fetch and decode from the L1I
